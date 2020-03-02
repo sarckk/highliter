@@ -41,9 +41,14 @@ document.onmouseup = function() {
     false
   );
 
+  let highlightRanges = [];
+
   while (walker.nextNode()) {
     let currentNode = walker.currentNode;
     let currentNodeData = currentNode.data;
+    let localHighlightRange = new Range();
+
+    localHighlightRange.selectNode(currentNode);
 
     if (currentNode === range.startContainer) {
       if (range.startContainer === range.endContainer) {
@@ -51,13 +56,28 @@ document.onmouseup = function() {
           range.startOffset,
           range.endOffset
         );
+
+        localHighlightRange.setStart(currentNode, range.startOffset);
+        localHighlightRange.setEnd(currentNode, range.endOffset);
       } else {
         currentNodeData = currentNodeData.substring(range.startOffset);
+
+        localHighlightRange.setStart(currentNode, range.startOffset);
+        localHighlightRange.setEndAfter(currentNode);
       }
     } else if (currentNode === range.endContainer) {
       currentNodeData = currentNodeData.substring(0, range.endOffset);
+
+      localHighlightRange.setStartBefore(currentNode);
+      localHighlightRange.setEnd(currentNode, range.endOffset);
     }
 
     console.log(currentNodeData);
+
+    highlightRanges.push(localHighlightedRange);
+  }
+
+  for (let r of highlightRanges) {
+    r.surroundContents(document.createElement("i"));
   }
 };
