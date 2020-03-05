@@ -1,0 +1,77 @@
+:root {
+  --border-outline: #e0e0e0;
+}
+
+.highlight-menu-container {
+  position: absolute;
+  height: 30px;
+  width: 100px;
+  background-color: white;
+  box-shadow: 0px 1px 4px #d0d0d0;
+  border: 1px solid var(--border-outline);
+  z-index: 1000;
+}
+
+.highlight-menu-pointer {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  background-color: white;
+  height: 10px;
+  width: 10px;
+  border-color: var(--border-outline);
+  border-style: solid;
+  border-width: 1px 1px 0 0;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+.highlight-menu-options {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.highlight-option-wrapper {
+  height: 21px;
+  width: 21px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlight-option {
+  height: 17px;
+  width: 17px;
+  background-color: white;
+  border-radius: 50%;
+  border: 1px solid;
+  cursor: pointer;
+}
+
+.highlight-option:hover {
+  border-width: 2px;
+}
+
+.highlight-option-0 {
+  background-color: #f7a586;
+  border-color: #de8c6d;
+}
+
+.highlight-option-1 {
+  background-color: #ecf786;
+  border-color: #d3de6d;
+}
+
+.highlight-option-2 {
+  background-color: #9bebaa;
+  border-color: #82d291;
+}
+
+.highlight-option-3 {
+  background-color: #9bc1eb;
+  border-color: #82a8d2;
+}

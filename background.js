@@ -1,6 +1,4 @@
-chrome.runtime.onInstalled.addListener(function() {
-  chrome.storage.sync.set({ selectedText: null });
-});
+chrome.runtime.onInstalled.addListener(function() {});
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log("Sent from: " + sender.tab ? "content script" : "the extension");
