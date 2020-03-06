@@ -31,9 +31,40 @@ function generateColorOptions() {
   return colorOptions;
 }
 
-export function showHighlightMenu() {
-  const TOP_GAP = 3;
+function getLastParentLineHeight() {
+  let range = document.getSelection().getRangeAt(0);
+  let endParent = range.endContainer;
+  if (endParent.nodeType !== 1) endParent = endParent.parentElement;
 
+  let lineHeight = window
+    .getComputedStyle(endParent)
+    .getPropertyValue("line-height");
+  let lastParentFontSize = window
+    .getComputedStyle(endParent)
+    .getPropertyValue("font-size");
+  let lastParentLineHeight =
+    lineHeight === "normal"
+      ? parseFloat(lastParentFontSize) * 1.2 // an approximation
+      : parseFloat(lineHeight);
+
+  return lastParentLineHeight;
+}
+
+function setMenuAtEnd(highlightMenu, pointer) {
+  const TOP_GAP = 8;
+  const vertOffset = getLastParentLineHeight();
+  highlightMenu.style.marginTop = `${vertOffset + TOP_GAP}px`;
+  pointer.classList.add("pointer-top");
+}
+
+function setMenuAtStart(highlightMenu, pointer) {
+  const BOTTOM_GAP = 10;
+  highlightMenu.style.marginTop = `-${highlightMenu.offsetHeight +
+    BOTTOM_GAP}px`;
+  pointer.classList.add("pointer-bottom");
+}
+
+export function showHighlightMenu(isBackwards) {
   let highlightMenu = document.createElement("div");
   highlightMenu.classList.add("highlight-menu-container");
 
@@ -54,28 +85,16 @@ export function showHighlightMenu() {
 
   let range = document.getSelection().getRangeAt(0);
   let newRange = range.cloneRange();
-  newRange.collapse(false);
+  newRange.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
   newRange.insertNode(highlightMenu);
 
   highlightMenu.style.marginLeft = `-${highlightMenu.offsetWidth / 2}px`;
 
-  let endParent = range.endContainer;
-  if (endParent.nodeType !== 1) endParent = endParent.parentElement;
-
-  let lineHeight = window
-    .getComputedStyle(endParent)
-    .getPropertyValue("line-height");
-  let lastParentFontSize = window
-    .getComputedStyle(endParent)
-    .getPropertyValue("font-size");
-  let lastParentLineHeight =
-    lineHeight === "normal"
-      ? parseFloat(lastParentFontSize) * 1.2 // an approximation
-      : parseFloat(lineHeight);
-
-  console.log(lastParentLineHeight + TOP_GAP);
-
-  highlightMenu.style.marginTop = `${lastParentLineHeight + TOP_GAP}px`;
+  if (isBackwards) {
+    setMenuAtStart(highlightMenu, pointer);
+  } else {
+    setMenuAtEnd(highlightMenu, pointer);
+  }
 
   return highlightMenu;
 }

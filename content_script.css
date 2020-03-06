@@ -17,15 +17,23 @@
 
 .highlight-menu-pointer {
   position: absolute;
-  top: -6px;
   left: 50%;
   background-color: white;
   height: 10px;
   width: 10px;
   border-color: var(--border-outline);
   border-style: solid;
-  border-width: 1px 1px 0 0;
   transform: translateX(-50%) rotate(-45deg);
+}
+
+.pointer-top {
+  border-width: 1px 1px 0 0;
+  top: -6px;
+}
+
+.pointer-bottom {
+  border-width: 0 0 1px 1px;
+  bottom: -6px;
 }
 
 .highlight-menu-options {

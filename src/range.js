@@ -1,3 +1,11 @@
+function isBackwards(selection) {
+  let testRange = new Range();
+  testRange.setStart(selection.anchorNode, selection.anchorOffset);
+  testRange.setEnd(selection.focusNode, selection.focusOffset);
+
+  return testRange.collapsed;
+}
+
 function textInSelection(node, currentRange) {
   return !node.data.match(/^\s+$/) && currentRange.intersectsNode(node);
 }
@@ -41,4 +49,4 @@ function getSelectionRanges() {
   return selectionRanges;
 }
 
-export { getSelectionRanges as getRanges };
+export { getSelectionRanges as getRanges, isBackwards };

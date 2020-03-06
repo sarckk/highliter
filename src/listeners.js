@@ -1,4 +1,5 @@
 import { showHighlightMenu } from "./menu";
+import { isBackwards } from "./range";
 
 let currentMenu = null;
 let elemToNormalize = null;
@@ -18,7 +19,8 @@ document.onmouseup = function(e) {
       elemToNormalize = elemToNormalize.parentElement;
     }
 
-    currentMenu = showHighlightMenu(); // display option to highlight
+    const backwards = isBackwards(selection);
+    currentMenu = showHighlightMenu(backwards); // display option to highlight
   }
 };
 
