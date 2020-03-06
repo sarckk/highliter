@@ -50,20 +50,6 @@ function getLastParentLineHeight() {
   return lastParentLineHeight;
 }
 
-function setMenuAtEnd(highlightMenu, pointer) {
-  const TOP_GAP = 8;
-  const vertOffset = getLastParentLineHeight();
-  highlightMenu.style.marginTop = `${vertOffset + TOP_GAP}px`;
-  pointer.classList.add("pointer-top");
-}
-
-function setMenuAtStart(highlightMenu, pointer) {
-  const BOTTOM_GAP = 10;
-  highlightMenu.style.marginTop = `-${highlightMenu.offsetHeight +
-    BOTTOM_GAP}px`;
-  pointer.classList.add("pointer-bottom");
-}
-
 export function showHighlightMenu(isBackwards) {
   let highlightMenu = document.createElement("div");
   highlightMenu.classList.add("highlight-menu-container");
@@ -74,27 +60,46 @@ export function showHighlightMenu(isBackwards) {
 
   let options = document.createElement("div");
   options.classList.add("highlight-menu-options");
-
   let hl_colors = generateColorOptions();
-
-  for (let color of hl_colors) {
-    options.append(color);
-  }
-
+  hl_colors.forEach(c => options.append(c));
   highlightMenu.append(options);
 
-  let range = document.getSelection().getRangeAt(0);
-  let newRange = range.cloneRange();
-  newRange.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
-  newRange.insertNode(highlightMenu);
+  document.body.append(highlightMenu);
 
-  highlightMenu.style.marginLeft = `-${highlightMenu.offsetWidth / 2}px`;
+  /* Create and insert temporary span element to calculate position */
+  let range = document.getSelection().getRangeAt(0);
+  let tempPositionMarker = document.createElement("span");
+  let rangeCopy = range.cloneRange();
+  rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
+  rangeCopy.insertNode(tempPositionMarker);
+  let markerCoords = tempPositionMarker.getBoundingClientRect(); // this has to come after insertNode, else it always returns 0 since it's not yet visible
+  /******************************************************************/
+
+  console.log(markerCoords.left);
+  highlightMenu.style.left = `${markerCoords.left -
+    highlightMenu.offsetWidth / 2 +
+    window.pageXOffset}px`;
+
+  const BOTTOM_GAP = 10;
+  const TOP_GAP = 8;
 
   if (isBackwards) {
-    setMenuAtStart(highlightMenu, pointer);
+    // menu is at start
+    highlightMenu.style.top = `${markerCoords.top -
+      highlightMenu.offsetHeight -
+      BOTTOM_GAP +
+      window.pageYOffset}px`;
+    pointer.classList.add("pointer-bottom");
   } else {
-    setMenuAtEnd(highlightMenu, pointer);
+    const vertOffset = getLastParentLineHeight();
+    highlightMenu.style.top = `${markerCoords.top +
+      vertOffset +
+      TOP_GAP +
+      window.pageYOffset}px`;
+    pointer.classList.add("pointer-top");
   }
+
+  tempPositionMarker.remove(); // cleanup, then normalize() takes care of joining text nodes back
 
   return highlightMenu;
 }

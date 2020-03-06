@@ -3,7 +3,7 @@
 }
 
 .highlight-menu-container {
-  display: inline-flex;
+  display: flex;
   position: absolute;
   height: 30px;
   width: 100px;
