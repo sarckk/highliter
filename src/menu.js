@@ -69,6 +69,7 @@ export function showHighlightMenu(isBackwards) {
   /* Create and insert temporary span element to calculate position */
   let range = document.getSelection().getRangeAt(0);
   let tempPositionMarker = document.createElement("span");
+  tempPositionMarker.textContent = "&#8203"; // zero-width character
   let rangeCopy = range.cloneRange();
   rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
   rangeCopy.insertNode(tempPositionMarker);
