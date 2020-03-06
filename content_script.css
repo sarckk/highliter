@@ -5,7 +5,6 @@
 .highlight-menu-container {
   display: inline-flex;
   position: absolute;
-  margin-top: 32px;
   height: 30px;
   width: 100px;
   background-color: white;
