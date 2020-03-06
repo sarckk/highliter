@@ -1,7 +1,7 @@
 import { getRanges } from "./range";
 
-function createHighlight(range, color) {
-  const hlRanges = getRanges(range);
+function createHighlight(color) {
+  const hlRanges = getRanges();
   const HighlightSnippet = customElements.get("highlight-snippet");
 
   for (let r of hlRanges) {
@@ -9,7 +9,7 @@ function createHighlight(range, color) {
   }
 }
 
-function generateColorOptions(range) {
+function generateColorOptions() {
   let colors = ["#F7A586", "#ECF786", "#9BEBAA", "#9BC1EB"];
   let colorOptions = [];
   for (let i = 0; i < 4; i++) {
@@ -22,7 +22,7 @@ function generateColorOptions(range) {
     option.setAttribute("data-color", colors[i]);
     option.onclick = function(e) {
       const color = e.target.dataset.color;
-      createHighlight(range, color);
+      createHighlight(color);
     };
 
     optionWrapper.append(option);
@@ -31,7 +31,7 @@ function generateColorOptions(range) {
   return colorOptions;
 }
 
-export function showHighlightMenu(range) {
+export function showHighlightMenu() {
   const TOP_GAP = 3;
 
   let highlightMenu = document.createElement("div");
@@ -44,7 +44,7 @@ export function showHighlightMenu(range) {
   let options = document.createElement("div");
   options.classList.add("highlight-menu-options");
 
-  let hl_colors = generateColorOptions(range);
+  let hl_colors = generateColorOptions();
 
   for (let color of hl_colors) {
     options.append(color);
@@ -52,6 +52,7 @@ export function showHighlightMenu(range) {
 
   highlightMenu.append(options);
 
+  let range = document.getSelection().getRangeAt(0);
   let newRange = range.cloneRange();
   newRange.collapse(false);
   newRange.insertNode(highlightMenu);

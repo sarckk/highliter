@@ -1,8 +1,9 @@
-function textInSelection(node, range) {
-  return !node.data.match(/^\s+$/) && range.intersectsNode(node);
+function textInSelection(node, currentRange) {
+  return !node.data.match(/^\s+$/) && currentRange.intersectsNode(node);
 }
 
-function getSelectionRanges(range) {
+function getSelectionRanges() {
+  let range = document.getSelection().getRangeAt(0);
   let container = range.commonAncestorContainer;
   if (container.nodeType !== 1) {
     container = container.parentElement; // not element so we set it to its parent elem

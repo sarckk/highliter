@@ -17,8 +17,8 @@ document.onmouseup = function(e) {
     if (elemToNormalize.nodeType === 3) {
       elemToNormalize = elemToNormalize.parentElement;
     }
-    console.log(elemToNormalize);
-    currentMenu = showHighlightMenu(range); // display option to highlight
+
+    currentMenu = showHighlightMenu(); // display option to highlight
   }
 };
 
