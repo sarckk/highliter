@@ -1,6 +1,7 @@
 import { showHighlightMenu } from "./menu";
 
 let currentMenu = null;
+let elemToNormalize = null;
 
 document.onmouseup = function(e) {
   const selection = document.getSelection();
@@ -9,29 +10,40 @@ document.onmouseup = function(e) {
     return;
   }
 
-  const range = selection.getRangeAt(0);
-
   if (!currentMenu) {
+    const range = selection.getRangeAt(0);
+    elemToNormalize = range.endContainer;
+
+    if (elemToNormalize.nodeType === 3) {
+      elemToNormalize = elemToNormalize.parentElement;
+    }
+    console.log(elemToNormalize);
     currentMenu = showHighlightMenu(range); // display option to highlight
   }
 };
 
 document.onmousedown = function(e) {
   if (currentMenu && !currentMenu.contains(e.target)) {
+    // user clicked outside of highlight options menu
     currentMenu.remove();
-    document.getSelection().removeAllRanges();
+
+    if (elemToNormalize) elemToNormalize.normalize(); // important that we normalize after removing currentMenu
+
+    document.getSelection().removeAllRanges(); // when we click out of menu, this ensures that mouseup doesn't create another menu (since !currentMenu condition is fulfilled)
     currentMenu = null;
   } else if (currentMenu && currentMenu.contains(e.target)) {
-    let prevSelectedRange = document.getSelection().getRangeAt(0);
-    document.getSelection().removeAllRanges();
-    document.getSelection().addRange(prevSelectedRange);
+    // user clicked inside menu
     return false; // only works because we didn't use addEventListener
   }
 };
 
 document.onclick = function(e) {
+  // when we click on button, mouseup is triggered before onclick but
+  // since currentMenu is not deleted at this point, we still don't create
+  // a new highlight mneu
   if (e.target.classList.contains("highlight-option")) {
-    document.getSelection().removeAllRanges();
     if (currentMenu) currentMenu.remove();
+    if (elemToNormalize) elemToNormalize.normalize();
+    document.getSelection().removeAllRanges();
   }
 };

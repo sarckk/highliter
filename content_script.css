@@ -3,18 +3,22 @@
 }
 
 .highlight-menu-container {
+  display: inline-flex;
   position: absolute;
+  margin-top: 32px;
   height: 30px;
   width: 100px;
   background-color: white;
   box-shadow: 0px 1px 4px #d0d0d0;
   border: 1px solid var(--border-outline);
-  z-index: 1000;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
 }
 
 .highlight-menu-pointer {
   position: absolute;
-  top: -7px;
+  top: -6px;
   left: 50%;
   background-color: white;
   height: 10px;

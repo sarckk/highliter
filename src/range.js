@@ -4,7 +4,7 @@ function textInSelection(node, range) {
 
 function getSelectionRanges(range) {
   let container = range.commonAncestorContainer;
-  if (container.nodeType != 1) {
+  if (container.nodeType !== 1) {
     container = container.parentElement; // not element so we set it to its parent elem
   }
 

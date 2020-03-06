@@ -52,18 +52,25 @@ export function showHighlightMenu(range) {
   }
 
   highlightMenu.append(options);
+  let newRange = range.cloneRange();
+  newRange.collapse(false);
+  newRange.insertNode(highlightMenu);
+  highlightMenu.style.marginLeft = `-${highlightMenu.offsetWidth / 2}px`;
 
-  document.body.append(highlightMenu);
+  //document.body.append(highlightMenu);
 
-  // set highlight menu position
+  /*
   highlightMenu.style.top =
-    lastRangeCoords.bottom + window.pageYOffset + OPTIONS_MENU_GAP_TOP + "px";
+    lastRangeCoords.bottom +
+    window.pageYOffset +
+    OPTIONS_MENU_GAP_TOP +
+    'px';
   highlightMenu.style.left =
     lastRangeCoords.right +
     window.pageXOffset -
     highlightMenu.offsetWidth / 2 +
-    "px";
+    'px';
+  */
 
-  console.log("SHOW HIGHLIGHT OPTIONS", highlightMenu);
   return highlightMenu;
 }
