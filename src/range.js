@@ -7,7 +7,11 @@ function isBackwards(selection) {
 }
 
 function textInSelection(node, currentRange) {
-  return !node.data.match(/^\s+$/) && currentRange.intersectsNode(node);
+  return (
+    node != null &&
+    !node.data.match(/^\s+$/) &&
+    currentRange.intersectsNode(node)
+  );
 }
 
 function getSelectionRanges() {
@@ -31,16 +35,21 @@ function getSelectionRanges() {
     let curNode = walker.currentNode;
     let curRange = new Range();
 
-    curRange.selectNode(curNode);
-    if (curNode === range.startContainer) {
-      if (range.startContainer === range.endContainer) {
-        curRange.setStart(curNode, range.startOffset);
-        curRange.setEnd(curNode, range.endOffset);
-      } else {
-        curRange.setStart(curNode, range.startOffset);
-      }
-    } else if (curNode === range.endContainer) {
+    if (curNode === range.startContainer && curNode === range.endContainer) {
+      curRange.setStart(curNode, range.startOffset);
       curRange.setEnd(curNode, range.endOffset);
+    } else if (curNode === range.startContainer) {
+      curRange.setStart(curNode, range.startOffset);
+      curRange.setEnd(curNode, curNode.data.length);
+    } else if (curNode === range.endContainer) {
+      curRange.setStart(curNode, 0);
+      curRange.setEnd(curNode, range.endOffset);
+    } else {
+      curRange.selectNode(curNode);
+    }
+
+    if (curRange.collapsed) {
+      continue;
     }
 
     selectionRanges.push(curRange);

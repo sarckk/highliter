@@ -31,9 +31,7 @@ function generateColorOptions() {
   return colorOptions;
 }
 
-function getLastParentLineHeight() {
-  let range = document.getSelection().getRangeAt(0);
-  let endParent = range.endContainer;
+function getEndParentLineHeight(endParent) {
   if (endParent.nodeType !== 1) endParent = endParent.parentElement;
 
   let lineHeight = window
@@ -67,16 +65,15 @@ export function showHighlightMenu(isBackwards) {
   document.body.append(highlightMenu);
 
   /* Create and insert temporary span element to calculate position */
-  let range = document.getSelection().getRangeAt(0);
+  let range = isBackwards ? getRanges()[0] : getRanges().slice(-1)[0];
   let tempPositionMarker = document.createElement("span");
-  tempPositionMarker.textContent = "&#8203"; // zero-width character
+  tempPositionMarker.innerHTML = "&#8203;"; // zero-width character
   let rangeCopy = range.cloneRange();
   rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
   rangeCopy.insertNode(tempPositionMarker);
   let markerCoords = tempPositionMarker.getBoundingClientRect(); // this has to come after insertNode, else it always returns 0 since it's not yet visible
   /******************************************************************/
 
-  console.log(markerCoords.left);
   highlightMenu.style.left = `${markerCoords.left -
     highlightMenu.offsetWidth / 2 +
     window.pageXOffset}px`;
@@ -92,7 +89,7 @@ export function showHighlightMenu(isBackwards) {
       window.pageYOffset}px`;
     pointer.classList.add("pointer-bottom");
   } else {
-    const vertOffset = getLastParentLineHeight();
+    const vertOffset = getEndParentLineHeight(range.endContainer);
     highlightMenu.style.top = `${markerCoords.top +
       vertOffset +
       TOP_GAP +
