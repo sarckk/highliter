@@ -65,12 +65,8 @@ export default class SelectionRange {
       walkerFilter
     );
 
-    const {
-      startContainer,
-      endContainer,
-      startOffset,
-      endOffset
-    } = this._range;
+    const { startContainer, endContainer } = this._range;
+    const { startOffset, endOffset } = getNonWhitespaceOffset(this._range);
 
     while (walker.nextNode()) {
       let curNode = walker.currentNode;
