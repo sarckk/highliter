@@ -48,6 +48,17 @@ function getEndParentLineHeight(endParent) {
   return lastParentLineHeight;
 }
 
+function getInsertionMarker(isBackwards) {
+  let range = isBackwards ? getRanges()[0] : getRanges().slice(-1)[0];
+  let tempPositionMarker = document.createElement("span");
+  tempPositionMarker.innerHTML = "&#8203;"; // zero-width character
+  let rangeCopy = range.cloneRange();
+  rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
+  rangeCopy.insertNode(tempPositionMarker);
+
+  return tempPositionMarker;
+}
+
 export function showHighlightMenu(isBackwards) {
   let highlightMenu = document.createElement("div");
   highlightMenu.classList.add("highlight-menu-container");
@@ -65,37 +76,67 @@ export function showHighlightMenu(isBackwards) {
   document.body.append(highlightMenu);
 
   /* Create and insert temporary span element to calculate position */
-  let range = isBackwards ? getRanges()[0] : getRanges().slice(-1)[0];
-  let tempPositionMarker = document.createElement("span");
-  tempPositionMarker.innerHTML = "&#8203;"; // zero-width character
-  let rangeCopy = range.cloneRange();
-  rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
-  rangeCopy.insertNode(tempPositionMarker);
+  let tempPositionMarker = getInsertionMarker(isBackwards);
   let markerCoords = tempPositionMarker.getBoundingClientRect(); // this has to come after insertNode, else it always returns 0 since it's not yet visible
   /******************************************************************/
 
-  highlightMenu.style.left = `${markerCoords.left -
-    highlightMenu.offsetWidth / 2 +
-    window.pageXOffset}px`;
+  // Set vertical offset so that menu is always in view
+  let range = document.getSelection().getRangeAt(0);
+  const vertOffset = getEndParentLineHeight(range.endContainer);
+  const windowHeight = document.documentElement.clientHeight;
 
   const BOTTOM_GAP = 10;
   const TOP_GAP = 8;
+  const POINTER_HEIGHT = 6;
 
-  if (isBackwards) {
-    // menu is at start
-    highlightMenu.style.top = `${markerCoords.top -
-      highlightMenu.offsetHeight -
-      BOTTOM_GAP +
-      window.pageYOffset}px`;
+  let windowRelativeTopOffset =
+    markerCoords.top +
+    (isBackwards
+      ? -highlightMenu.offsetHeight - BOTTOM_GAP
+      : vertOffset + (TOP_GAP - POINTER_HEIGHT));
+
+  let topOffset;
+
+  let btmMenuAdjustment = vertOffset + TOP_GAP + window.pageYOffset;
+  let tpMenuAdjustment =
+    -highlightMenu.offsetHeight - BOTTOM_GAP + window.pageYOffset;
+
+  if (windowRelativeTopOffset < 0 && isBackwards === true) {
+    tempPositionMarker = getInsertionMarker(!isBackwards);
+    markerCoords = tempPositionMarker.getBoundingClientRect();
+    topOffset = markerCoords.top + btmMenuAdjustment;
+    pointer.classList.add("pointer-top");
+  } else if (windowRelativeTopOffset > windowHeight && isBackwards === false) {
+    tempPositionMarker = getInsertionMarker(!isBackwards);
+    markerCoords = tempPositionMarker.getBoundingClientRect();
+    topOffset = markerCoords.top + tpMenuAdjustment;
     pointer.classList.add("pointer-bottom");
   } else {
-    const vertOffset = getEndParentLineHeight(range.endContainer);
-    highlightMenu.style.top = `${markerCoords.top +
-      vertOffset +
-      TOP_GAP +
-      window.pageYOffset}px`;
-    pointer.classList.add("pointer-top");
+    // no change in position of menu, proceed as usual
+    topOffset =
+      markerCoords.top + (isBackwards ? tpMenuAdjustment : btmMenuAdjustment);
+    pointer.classList.add(isBackwards ? "pointer-bottom" : "pointer-top");
   }
+
+  highlightMenu.style.top = topOffset + "px";
+
+  // Set left offset so that menu is always in view
+  let leftOffset =
+    markerCoords.left - highlightMenu.offsetWidth / 2 + window.pageXOffset;
+
+  let maxLeftOffset =
+    document.documentElement.clientWidth +
+    window.pageXOffset -
+    highlightMenu.offsetWidth;
+
+  if (leftOffset < 0) {
+    leftOffset = 0;
+  }
+  if (leftOffset > maxLeftOffset) {
+    leftOffset = maxLeftOffset;
+  }
+
+  highlightMenu.style.left = leftOffset + "px";
 
   tempPositionMarker.remove(); // cleanup, then normalize() takes care of joining text nodes back
 
