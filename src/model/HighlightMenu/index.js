@@ -1,11 +1,11 @@
-import { getEndParentLineHeight } from "./dom";
-import Highlighter from "../Highlighter";
+import { getEndParentLineHeight } from './dom';
+import Highlighter from '../Highlighter';
 import {
   BOTTOM_GAP,
   TOP_GAP,
   POINTER_HEIGHT,
   ZERO_WIDTH_SPACE
-} from "./constants";
+} from './constants';
 
 export default class HighlightMenu {
   constructor(range) {
@@ -16,7 +16,7 @@ export default class HighlightMenu {
   }
 
   render() {
-    let { highlightMenu, pointer } = this.prepareHighlightMenu();
+    const { highlightMenu, pointer } = this.prepareHighlightMenu();
 
     document.body.append(highlightMenu);
 
@@ -24,16 +24,16 @@ export default class HighlightMenu {
       highlightMenu
     );
 
-    highlightMenu.style.left = leftOffset + "px";
-    highlightMenu.style.top = topOffset + "px";
+    highlightMenu.style.left = `${leftOffset}px`;
+    highlightMenu.style.top = `${topOffset}px`;
 
     if (positionAdjusted) {
       pointer.classList.add(
-        !this._selectionIsBackwards ? "pointer-bottom" : "pointer-top"
+        !this._selectionIsBackwards ? 'pointer-bottom' : 'pointer-top'
       );
     } else {
       pointer.classList.add(
-        this._selectionIsBackwards ? "pointer-bottom" : "pointer-top"
+        this._selectionIsBackwards ? 'pointer-bottom' : 'pointer-top'
       );
     }
 
@@ -41,35 +41,35 @@ export default class HighlightMenu {
   }
 
   prepareHighlightMenu() {
-    let highlightMenu = document.createElement("div");
-    highlightMenu.classList.add("highlight-menu-container");
+    const highlightMenu = document.createElement('div');
+    highlightMenu.classList.add('highlight-menu-container');
 
-    let pointer = document.createElement("div");
-    pointer.classList.add("highlight-menu-pointer");
+    const pointer = document.createElement('div');
+    pointer.classList.add('highlight-menu-pointer');
     highlightMenu.append(pointer);
 
-    let options = this.generateColorOptions();
+    const options = this.generateColorOptions();
     highlightMenu.append(options);
 
     return { highlightMenu, pointer };
   }
 
   generateColorOptions() {
-    let colors = ["#F7A586", "#ECF786", "#9BEBAA", "#9BC1EB"];
-    let options = document.createElement("div");
-    options.classList.add("highlight-menu-options");
+    const colors = ['#F7A586', '#ECF786', '#9BEBAA', '#9BC1EB'];
+    const options = document.createElement('div');
+    options.classList.add('highlight-menu-options');
 
-    for (let i = 0; i < 4; i++) {
-      let optionWrapper = document.createElement("div");
-      optionWrapper.classList.add(`highlight-option-wrapper`);
+    for (let i = 0; i < 4; i += 1) {
+      const optionWrapper = document.createElement('div');
+      optionWrapper.classList.add('highlight-option-wrapper');
 
-      let option = document.createElement("div");
+      const option = document.createElement('div');
       option.classList.add(`highlight-option-${i}`);
-      option.classList.add("highlight-option");
-      option.setAttribute("data-color", colors[i]);
+      option.classList.add('highlight-option');
+      option.setAttribute('data-color', colors[i]);
 
       option.onclick = e => {
-        const color = e.target.dataset.color;
+        const { color } = e.target.dataset;
         Highlighter.highlightFromSelection(this._selectedRanges, color);
       };
 
@@ -81,15 +81,15 @@ export default class HighlightMenu {
   }
 
   getInsertionMarker(selectionIsBackwards) {
-    let range = selectionIsBackwards
+    const range = selectionIsBackwards
       ? this._selectedRanges[0]
       : this._selectedRanges.slice(-1)[0];
 
-    let tempMarker = document.createElement("span");
+    const tempMarker = document.createElement('span');
 
     tempMarker.innerHTML = ZERO_WIDTH_SPACE; // zero-width character
 
-    let rangeCopy = range.cloneRange();
+    const rangeCopy = range.cloneRange();
     rangeCopy.collapse(selectionIsBackwards); // if isBackwards is true, collapse(true) collapses to the start
     rangeCopy.insertNode(tempMarker);
 
@@ -99,8 +99,8 @@ export default class HighlightMenu {
   setMenuPosition(highlightMenu) {
     let positionAdjusted = false;
 
-    /* First get the insertion marker placed at where it ought to be 
-      then do re-adjust later as necessary*/
+    /* First get the insertion marker placed at where it ought to be
+      then do re-adjust later as necessary */
     let marker = this.getInsertionMarker(this._selectionIsBackwards);
     let markerCoords = marker.getBoundingClientRect();
 
@@ -108,7 +108,7 @@ export default class HighlightMenu {
     const vertOffset = getEndParentLineHeight(this._selectedRanges);
     const windowHeight = document.documentElement.clientHeight;
 
-    let windowRelativeTopOffset =
+    const windowRelativeTopOffset =
       markerCoords.top +
       (this._selectionIsBackwards
         ? -highlightMenu.offsetHeight - BOTTOM_GAP
@@ -116,8 +116,8 @@ export default class HighlightMenu {
 
     let topOffset;
 
-    let btmMenuAdjustment = vertOffset + TOP_GAP + window.pageYOffset;
-    let tpMenuAdjustment =
+    const btmMenuAdjustment = vertOffset + TOP_GAP + window.pageYOffset;
+    const tpMenuAdjustment =
       -highlightMenu.offsetHeight - BOTTOM_GAP + window.pageYOffset;
 
     if (windowRelativeTopOffset < 0 && this._selectionIsBackwards === true) {
@@ -147,7 +147,7 @@ export default class HighlightMenu {
     let leftOffset =
       markerCoords.left - highlightMenu.offsetWidth / 2 + window.pageXOffset;
 
-    let maxLeftOffset =
+    const maxLeftOffset =
       document.documentElement.clientWidth +
       window.pageXOffset -
       highlightMenu.offsetWidth;

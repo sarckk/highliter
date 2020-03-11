@@ -1,7 +1,7 @@
 export function getDocumentSelection() {
   const selection = document.getSelection();
 
-  if (!selection || selection.rangeCount == 0 || selection.isCollapsed) {
+  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
     return null;
   }
 
@@ -9,7 +9,7 @@ export function getDocumentSelection() {
 }
 
 export function isSelectionBackwards(selection) {
-  let testRange = new Range();
+  const testRange = new Range();
   testRange.setStart(selection.anchorNode, selection.anchorOffset);
   testRange.setEnd(selection.focusNode, selection.focusOffset);
 
@@ -26,7 +26,7 @@ export function nodeInSelection(node, selectedRange) {
 
 export function getNonWhitespaceOffset(range) {
   let { startContainer, endContainer, startOffset, endOffset } = range;
-  let startEndSameContainers = startContainer === endContainer;
+  const startEndSameContainers = startContainer === endContainer;
 
   console.log(`before: ${startOffset} and ${endOffset}`);
 
@@ -38,21 +38,19 @@ export function getNonWhitespaceOffset(range) {
     endContainer = endContainer.firstChild;
   }
 
-  let charAtIndex;
-
   while (
-    (charAtIndex = startContainer.data.charAt(startOffset)).match(/^\s*$/) &&
+    startContainer.data.charAt(startOffset).match(/^\s*$/) &&
     startOffset <
       (startEndSameContainers ? endOffset : startContainer.data.length)
   ) {
-    startOffset++;
+    startOffset += 1;
   }
 
   while (
-    (charAtIndex = endContainer.data.charAt(endOffset - 1)).match(/^\s*$/) &&
+    endContainer.data.charAt(endOffset - 1).match(/^\s*$/) &&
     endOffset > (startEndSameContainers ? startOffset : 0)
   ) {
-    endOffset--;
+    endOffset -= 1;
   }
 
   console.log(`after: ${startOffset} and ${endOffset}`);

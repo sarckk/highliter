@@ -3,7 +3,7 @@ import {
   isSelectionBackwards,
   nodeInSelection,
   getNonWhitespaceOffset
-} from "../../util/selection";
+} from '../../util/selection';
 
 export default class SelectionRange {
   static fromDocumentSelection() {
@@ -27,7 +27,7 @@ export default class SelectionRange {
   }
 
   constructor(range, elemToNormalize, isBackwards) {
-    console.log("_range:", range);
+    console.log('_range:', range);
     this._range = range;
     this._elemToNormalize = elemToNormalize;
     this._isBackwards = isBackwards;
@@ -47,19 +47,19 @@ export default class SelectionRange {
       container = container.parentElement; // not element so we set it to its parent elem
     }
 
-    let selectedRanges = [];
+    const selectedRanges = [];
 
-    let acceptNodeFn = function(node) {
+    const acceptNodeFn = function(node) {
       return nodeInSelection(node, this._range)
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_REJECT;
     };
 
-    let walkerFilter = {
+    const walkerFilter = {
       acceptNode: acceptNodeFn.bind(this)
     };
 
-    let walker = document.createTreeWalker(
+    const walker = document.createTreeWalker(
       container,
       NodeFilter.SHOW_TEXT,
       walkerFilter
@@ -69,9 +69,9 @@ export default class SelectionRange {
     const { startOffset, endOffset } = getNonWhitespaceOffset(this._range);
 
     while (walker.nextNode()) {
-      let curNode = walker.currentNode;
+      const curNode = walker.currentNode;
 
-      let curRange = new Range();
+      const curRange = new Range();
 
       if (curNode === startContainer && curNode === endContainer) {
         curRange.setStart(curNode, startOffset);
@@ -86,11 +86,9 @@ export default class SelectionRange {
         curRange.selectNode(curNode);
       }
 
-      if (curRange.collapsed) {
-        continue;
+      if (!curRange.collapsed) {
+        selectedRanges.push(curRange);
       }
-
-      selectedRanges.push(curRange);
     }
 
     return selectedRanges;

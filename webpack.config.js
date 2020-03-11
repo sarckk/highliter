@@ -1,16 +1,17 @@
 module.exports = {
-  entry: "./src/app.js",
+  entry: './src/app.js',
   output: {
     path: __dirname,
-    filename: "bundle.js"
+    filename: 'bundle.js',
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: "babel-loader"
-      }
-    ]
+        exclude: /node_modules/,
+        use: ['babel-loader', 'eslint-loader'],
+      },
+    ],
   },
-  devtool: "source-map"
+  devtool: 'source-map',
 };
