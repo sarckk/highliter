@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@types/chrome": "0.0.98",
-    "@webcomponents/custom-elements": "^1.4.0"
+    "@webcomponents/custom-elements": "^1.4.0",
+    "chroma-js": "^2.1.0",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",

@@ -1,4 +1,5 @@
 import { getEndParentLineHeight } from './dom';
+import { prepareMenu } from '../../util/dom';
 import Highlighter from '../Highlighter';
 import {
   BOTTOM_GAP,
@@ -16,9 +17,14 @@ export default class HighlightMenu {
   }
 
   render() {
-    const { highlightMenu, pointer } = this.prepareHighlightMenu();
+    const { highlightMenu, pointer } = prepareMenu();
 
     document.body.append(highlightMenu);
+
+    highlightMenu.onclick = e => {
+      const { color } = e.target.dataset;
+      Highlighter.highlightFromSelection(this._selectedRanges, color);
+    };
 
     const { leftOffset, topOffset, positionAdjusted } = this.setMenuPosition(
       highlightMenu
@@ -38,46 +44,6 @@ export default class HighlightMenu {
     }
 
     return highlightMenu;
-  }
-
-  prepareHighlightMenu() {
-    const highlightMenu = document.createElement('div');
-    highlightMenu.classList.add('highlight-menu-container');
-
-    const pointer = document.createElement('div');
-    pointer.classList.add('highlight-menu-pointer');
-    highlightMenu.append(pointer);
-
-    const options = this.generateColorOptions();
-    highlightMenu.append(options);
-
-    return { highlightMenu, pointer };
-  }
-
-  generateColorOptions() {
-    const colors = ['#F7A586', '#ECF786', '#9BEBAA', '#9BC1EB'];
-    const options = document.createElement('div');
-    options.classList.add('highlight-menu-options');
-
-    for (let i = 0; i < 4; i += 1) {
-      const optionWrapper = document.createElement('div');
-      optionWrapper.classList.add('highlight-option-wrapper');
-
-      const option = document.createElement('div');
-      option.classList.add(`highlight-option-${i}`);
-      option.classList.add('highlight-option');
-      option.setAttribute('data-color', colors[i]);
-
-      option.onclick = e => {
-        const { color } = e.target.dataset;
-        Highlighter.highlightFromSelection(this._selectedRanges, color);
-      };
-
-      optionWrapper.append(option);
-      options.append(optionWrapper);
-    }
-
-    return options;
   }
 
   getInsertionMarker(selectionIsBackwards) {

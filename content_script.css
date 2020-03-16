@@ -66,23 +66,3 @@
 .highlight-option:hover {
   border-width: 2px;
 }
-
-.highlight-option-0 {
-  background-color: #f7a586;
-  border-color: #de8c6d;
-}
-
-.highlight-option-1 {
-  background-color: #ecf786;
-  border-color: #d3de6d;
-}
-
-.highlight-option-2 {
-  background-color: #9bebaa;
-  border-color: #82d291;
-}
-
-.highlight-option-3 {
-  background-color: #9bc1eb;
-  border-color: #82a8d2;
-}
