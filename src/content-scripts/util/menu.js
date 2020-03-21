@@ -89,7 +89,7 @@ function getInsertionMarker(ranges, isBackwards) {
   return tempMarker;
 }
 
-function calcMenuPosition(ranges, isBackwards, menu) {
+function calcMenuPosition(ranges, isBackwards, menu, range) {
   let positionAdjusted = false;
 
   /* First get the insertion marker placed at where it ought to be
@@ -110,15 +110,19 @@ function calcMenuPosition(ranges, isBackwards, menu) {
   let topOffset;
 
   if (windowRelativeTopOffset < 0 && isBackwards) {
+    marker.remove();
+    range.normalize();
     marker = getInsertionMarker(ranges, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
-    topOffset = topOffsetForwards;
+    topOffset = markerCoords.bottom + TOP_GAP - POINTER_HEIGHT;
 
     positionAdjusted = true;
   } else if (windowRelativeTopOffset > maxTopOffset && !isBackwards) {
+    marker.remove();
+    range.normalize();
     marker = getInsertionMarker(ranges, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
-    topOffset = topOffsetBackwards;
+    topOffset = markerCoords.top - menu.offsetHeight - BOTTOM_GAP;
 
     positionAdjusted = true;
   } else {
@@ -147,17 +151,17 @@ function calcMenuPosition(ranges, isBackwards, menu) {
   return { leftOffset, topOffset, positionAdjusted };
 }
 
-function showMenu(ranges, isBackwards) {
+function showMenu(ranges, isBackwards, range) {
   const menu = document.querySelector('.highlight-menu');
   const pointer = menu.shadowRoot.querySelector('.highlight-menu-pointer');
-  console.log('POINTER:', pointer);
 
   menu.style.display = 'block';
 
   const { leftOffset, topOffset, positionAdjusted } = calcMenuPosition(
     ranges,
     isBackwards,
-    menu
+    menu,
+    range
   );
 
   menu.style.left = `${leftOffset}px`;
@@ -165,6 +169,7 @@ function showMenu(ranges, isBackwards) {
 
   if (positionAdjusted) {
     pointer.classList.add(!isBackwards ? 'pointer-bottom' : 'pointer-top');
+    range.changeNormalizeElem();
   } else {
     pointer.classList.add(isBackwards ? 'pointer-bottom' : 'pointer-top');
   }

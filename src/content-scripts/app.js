@@ -29,7 +29,8 @@ document.onmouseup = function() {
   if (range) {
     selectedRanges = range.getAllSelectedRanges();
     const { isBackwards } = range;
-    currentMenu = showMenu(selectedRanges, isBackwards);
+    const menu = showMenu(selectedRanges, isBackwards, range);
+    currentMenu = menu;
   }
 };
 

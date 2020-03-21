@@ -6,6 +6,18 @@ import {
 } from '../../util/selection';
 
 export default class SelectionRange {
+  static fromHighlight(range, isBackwards) {
+    let elemToNormalize = isBackwards
+      ? range.startContainer
+      : range.endContainer;
+
+    if (elemToNormalize.nodeType && elemToNormalize.nodeType === 3) {
+      elemToNormalize = elemToNormalize.parentElement;
+    }
+
+    return new SelectionRange(range, elemToNormalize, isBackwards);
+  }
+
   static fromDocumentSelection() {
     const selection = getDocumentSelection();
 
@@ -27,7 +39,6 @@ export default class SelectionRange {
   }
 
   constructor(range, elemToNormalize, isBackwards) {
-    console.log('_range:', range);
     this._range = range;
     this._elemToNormalize = elemToNormalize;
     this._isBackwards = isBackwards;
@@ -35,6 +46,20 @@ export default class SelectionRange {
 
   get isBackwards() {
     return this._isBackwards;
+  }
+
+  changeNormalizeElem() {
+    this._isBackwards = !this._isBackwards;
+
+    let newNormalizeElem = this._isBackwards
+      ? this._range.startContainer
+      : this._range.endContainer;
+
+    if (newNormalizeElem.nodeType && newNormalizeElem.nodeType === 3) {
+      newNormalizeElem = newNormalizeElem.parentElement;
+    }
+
+    this._elemToNormalize = newNormalizeElem;
   }
 
   normalize() {
