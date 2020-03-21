@@ -7,15 +7,13 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "browser_action": {
-    "default_popup": "popup.html"
-  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": ["content_script.css"],
-      "js": ["bundle.js"]
+      "css": ["src/styles/content_script.css"],
+      "js": ["dist/bundle.js"]
     }
   ],
+  "web_accessible_resources": ["src/styles/menu.css"],
   "manifest_version": 2
 }

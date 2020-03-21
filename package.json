@@ -4,7 +4,7 @@
   "description": "",
   "main": "background.js",
   "scripts": {
-    "start": "node_modules/.bin/webpack src/app.js -o bundle.js && webpack-dev-server",
+    "build": "webpack",
     "test": "mocha --require babel-register ./test/*.spec.js"
   },
   "keywords": [],

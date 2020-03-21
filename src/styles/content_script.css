@@ -1,0 +1,9 @@
+:root {
+  --border-outline: #e0e0e0;
+}
+
+.highlight-menu {
+  display: none;
+  position: absolute;
+  z-index: 9999;
+}

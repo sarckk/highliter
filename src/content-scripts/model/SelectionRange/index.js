@@ -19,7 +19,7 @@ export default class SelectionRange {
       ? range.startContainer
       : range.endContainer;
 
-    if (elemToNormalize.nodeType === 3) {
+    if (elemToNormalize.nodeType && elemToNormalize.nodeType === 3) {
       elemToNormalize = elemToNormalize.parentElement;
     }
 

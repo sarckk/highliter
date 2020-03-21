@@ -1,16 +1,10 @@
-:root {
-  --border-outline: #e0e0e0;
-}
-
 .highlight-menu-container {
-  display: flex;
-  position: absolute;
   height: 30px;
   width: 100px;
   background-color: white;
   box-shadow: 0px 1px 4px #d0d0d0;
   border: 1px solid var(--border-outline);
-  z-index: 9999;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -57,7 +51,7 @@
 .highlight-option {
   height: 17px;
   width: 17px;
-  background-color: white;
+  margin: 2px;
   border-radius: 50%;
   border: 1px solid;
   cursor: pointer;
@@ -65,4 +59,24 @@
 
 .highlight-option:hover {
   border-width: 2px;
+}
+
+.highlight-option-red {
+  background-color: #f7a586;
+  border-color: #e79778;
+}
+
+.highlight-option-yellow {
+  background-color: #fafd22;
+  border-color: #e9ee00;
+}
+
+.highlight-option-green {
+  background-color: #9bebaa;
+  border-color: #8cdc9b;
+}
+
+.highlight-option-blue {
+  background-color: #9bc1eb;
+  border-color: #8cb2dc;
 }

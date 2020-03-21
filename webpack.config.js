@@ -1,17 +1,19 @@
+const path = require('path');
+
 module.exports = {
-  entry: './src/app.js',
+  entry: './src/content-scripts/app.js',
   output: {
-    path: __dirname,
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ['babel-loader', 'eslint-loader'],
-      },
-    ],
+        use: ['babel-loader', 'eslint-loader']
+      }
+    ]
   },
-  devtool: 'source-map',
+  devtool: 'source-map'
 };

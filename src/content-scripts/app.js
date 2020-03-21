@@ -1,14 +1,20 @@
 import SelectionRange from './model/SelectionRange';
-import HighlightMenu from './model/HighlightMenu';
 import '@webcomponents/custom-elements';
 import { defineHighlightSnippet } from './model/HighlightSnippet';
+import { prepareMenu, showMenu, hideMenu } from './util/menu';
+import Highlighter from './model/Highlighter';
 
 defineHighlightSnippet();
+prepareMenu();
 
 let currentMenu = null;
 let range = null;
+let selectedRanges = null;
 
 function cleanup() {
+  hideMenu();
+  currentMenu = null;
+  selectedRanges = null;
   range.normalize();
   document.getSelection().removeAllRanges();
 }
@@ -21,15 +27,15 @@ document.onmouseup = function() {
   range = SelectionRange.fromDocumentSelection();
 
   if (range) {
-    currentMenu = new HighlightMenu(range); // display option to highlight
+    selectedRanges = range.getAllSelectedRanges();
+    const { isBackwards } = range;
+    currentMenu = showMenu(selectedRanges, isBackwards);
   }
 };
 
 document.onmousedown = function(e) {
   if (currentMenu && !currentMenu.contains(e.target)) {
     // user clicked outside of highlight options menu
-    currentMenu.remove();
-    currentMenu = null;
     cleanup();
     return true;
   }
@@ -40,12 +46,15 @@ document.onmousedown = function(e) {
   return true;
 };
 
-document.onclick = function(e) {
-  // when we click on button, mouseup is triggered before onclick but
-  // since currentMenu is not deleted at this point, we still don't create
-  // a new highlight mneu
-  if (e.target.classList.contains('highlight-option')) {
-    currentMenu.remove();
-    cleanup();
+document.addEventListener('highlight', e => {
+  console.log('RECEIVED');
+
+  const { color } = e.detail;
+
+  if (!color) {
+    return;
   }
-};
+
+  Highlighter.highlightFromSelection(selectedRanges, color);
+  cleanup();
+});
