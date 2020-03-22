@@ -5,29 +5,6 @@ import {
   POINTER_HEIGHT,
   ZERO_WIDTH_SPACE
 } from './constants';
-/*
-function generateColorOptions() {
-  const options = document.createElement('div');
-  options.classList.add('highlight-menu-options');
-  for (let i = 0; i < 4; i += 1) {
-    const optionWrapper = document.createElement('div');
-    optionWrapper.classList.add('highlight-option-wrapper');
-
-    const option = document.createElement('div');
-    option.classList.add('highlight-option');
-    option.setAttribute('data-color', colors[i]);
-    option.style.backgroundColor = colors[i];
-    option.style.borderColor = chroma(colors[i])
-      .darken(0.3)
-      .hex();
-
-    optionWrapper.append(option);
-    options.append(optionWrapper);
-  }
-
-  return options;
-}
-*/
 
 const colorHex = ['#F7A586', '#FAFD22', '#9BEBAA', '#9BC1EB'];
 const colorNames = ['red', 'yellow', 'green', 'blue'];
@@ -54,24 +31,6 @@ function prepareMenu() {
     </div>
   `;
 
-  const optionList = shadow.querySelectorAll('.highlight-option');
-
-  optionList.forEach(option => {
-    option.addEventListener('click', () => {
-      console.log('CLICKED ON OPTION');
-
-      option.dispatchEvent(
-        new CustomEvent('highlight', {
-          bubbles: true,
-          composed: true,
-          detail: {
-            color: option.dataset.color
-          }
-        })
-      );
-    });
-  });
-
   document.body.append(menu);
 }
 
@@ -89,12 +48,12 @@ function getInsertionMarker(ranges, isBackwards) {
   return tempMarker;
 }
 
-function calcMenuPosition(ranges, isBackwards, menu, range) {
+function calcMenuPosition(menu, isBackwards, selectedRanges) {
   let positionAdjusted = false;
 
   /* First get the insertion marker placed at where it ought to be
       then do re-adjust later as necessary */
-  let marker = getInsertionMarker(ranges, isBackwards);
+  let marker = getInsertionMarker(selectedRanges, isBackwards);
   let markerCoords = marker.getBoundingClientRect();
 
   const maxTopOffset =
@@ -112,7 +71,7 @@ function calcMenuPosition(ranges, isBackwards, menu, range) {
   if (windowRelativeTopOffset < 0 && isBackwards) {
     marker.remove();
     range.normalize();
-    marker = getInsertionMarker(ranges, !isBackwards);
+    marker = getInsertionMarker(selectedRanges, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
     topOffset = markerCoords.bottom + TOP_GAP - POINTER_HEIGHT;
 
@@ -120,7 +79,7 @@ function calcMenuPosition(ranges, isBackwards, menu, range) {
   } else if (windowRelativeTopOffset > maxTopOffset && !isBackwards) {
     marker.remove();
     range.normalize();
-    marker = getInsertionMarker(ranges, !isBackwards);
+    marker = getInsertionMarker(selectedRanges, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
     topOffset = markerCoords.top - menu.offsetHeight - BOTTOM_GAP;
 
@@ -151,17 +110,19 @@ function calcMenuPosition(ranges, isBackwards, menu, range) {
   return { leftOffset, topOffset, positionAdjusted };
 }
 
-function showMenu(ranges, isBackwards, range) {
+function showMenu(range) {
   const menu = document.querySelector('.highlight-menu');
   const pointer = menu.shadowRoot.querySelector('.highlight-menu-pointer');
 
   menu.style.display = 'block';
 
+  const { isBackwards, selectedRanges } = range;
+  console.log('selectedRanges at first: ', selectedRanges);
+
   const { leftOffset, topOffset, positionAdjusted } = calcMenuPosition(
-    ranges,
-    isBackwards,
     menu,
-    range
+    isBackwards,
+    selectedRanges
   );
 
   menu.style.left = `${leftOffset}px`;
@@ -173,6 +134,26 @@ function showMenu(ranges, isBackwards, range) {
   } else {
     pointer.classList.add(isBackwards ? 'pointer-bottom' : 'pointer-top');
   }
+
+  const optionList = menu.shadowRoot.querySelectorAll('.highlight-option');
+
+  optionList.forEach(option => {
+    // eslint-disable-next-line no-param-reassign
+    option.onclick = () => {
+      console.log('Selected ranges in onclick fn: ', selectedRanges);
+
+      option.dispatchEvent(
+        new CustomEvent('highlight', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            selectedRanges,
+            color: option.dataset.color
+          }
+        })
+      );
+    };
+  });
 
   return menu;
 }

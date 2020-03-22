@@ -3,10 +3,17 @@ import chroma from 'chroma-js';
 import { getSnippetsByDataId } from '../../util/dom';
 
 class HighlightSnippet extends HTMLElement {
-  constructor(highlightColor, uuid) {
+  constructor(color, uuid) {
     super();
-    this.style.backgroundColor = highlightColor;
-    this.setAttribute('data-highlight-id', uuid);
+    this.color = color;
+    this.id = uuid;
+  }
+
+  connectedCallback() {
+    console.log('CALLED');
+
+    this.style.backgroundColor = this.color;
+    this.setAttribute('data-highlight-id', this.id);
 
     this.onmouseenter = e => {
       getSnippetsByDataId(e.target.dataset.highlightId).forEach(s => {
@@ -18,7 +25,7 @@ class HighlightSnippet extends HTMLElement {
 
     this.onmouseout = e => {
       getSnippetsByDataId(e.target.dataset.highlightId).forEach(s => {
-        s.style.backgroundColor = highlightColor;
+        s.style.backgroundColor = this.color;
       });
     };
   }

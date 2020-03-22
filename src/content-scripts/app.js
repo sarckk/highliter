@@ -2,19 +2,20 @@ import SelectionRange from './model/SelectionRange';
 import '@webcomponents/custom-elements';
 import { defineHighlightSnippet } from './model/HighlightSnippet';
 import { prepareMenu, showMenu, hideMenu } from './util/menu';
-import Highlighter from './model/Highlighter';
+import { highlight } from './util/highlight';
+import { loadHighlights } from './db/store';
 
+// initialisation
 defineHighlightSnippet();
 prepareMenu();
+loadHighlights();
 
 let currentMenu = null;
 let range = null;
-let selectedRanges = null;
 
 function cleanup() {
   hideMenu();
   currentMenu = null;
-  selectedRanges = null;
   range.normalize();
   document.getSelection().removeAllRanges();
 }
@@ -27,9 +28,7 @@ document.onmouseup = function() {
   range = SelectionRange.fromDocumentSelection();
 
   if (range) {
-    selectedRanges = range.getAllSelectedRanges();
-    const { isBackwards } = range;
-    const menu = showMenu(selectedRanges, isBackwards, range);
+    const menu = showMenu(range);
     currentMenu = menu;
   }
 };
@@ -48,14 +47,13 @@ document.onmousedown = function(e) {
 };
 
 document.addEventListener('highlight', e => {
-  console.log('RECEIVED');
+  const { selectedRanges, color } = e.detail;
+  console.log('in event listener', selectedRanges);
 
-  const { color } = e.detail;
-
-  if (!color) {
+  if (!selectedRanges || !color) {
     return;
   }
 
-  Highlighter.highlightFromSelection(selectedRanges, color);
+  highlight(selectedRanges, color);
   cleanup();
 });

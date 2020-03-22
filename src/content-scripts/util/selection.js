@@ -16,11 +16,13 @@ export function isSelectionBackwards(selection) {
   return testRange.collapsed;
 }
 
-export function nodeInSelection(node, selectedRange) {
+export function nodeInSelection(node, start, end) {
+  const range = document.createRange();
+  range.setStart(start.startContainer, start.startOffset);
+  range.setEnd(end.endContainer, end.endOffset);
+
   return (
-    node != null &&
-    !node.data.match(/^\s*$/) &&
-    selectedRange.intersectsNode(node)
+    node != null && !node.data.match(/^\s*$/) && range.intersectsNode(node)
   );
 }
 

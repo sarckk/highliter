@@ -6,27 +6,36 @@ import {
 } from '../../util/selection';
 
 export default class SelectionRange {
-  static fromHighlight(range, isBackwards) {
-    let elemToNormalize = isBackwards
-      ? range.startContainer
-      : range.endContainer;
-
-    if (elemToNormalize.nodeType && elemToNormalize.nodeType === 3) {
-      elemToNormalize = elemToNormalize.parentElement;
-    }
-
-    return new SelectionRange(range, elemToNormalize, isBackwards);
-  }
-
   static fromDocumentSelection() {
     const selection = getDocumentSelection();
 
-    if (!selection) {
+    if (!selection || selection.rangeCount === 0) {
       return null;
     }
 
     const range = selection.getRangeAt(0);
+    const selectionString = range.toString();
+    let commonParentElement = range.commonAncestorContainer;
+
+    if (commonParentElement.nodeType !== 1) {
+      // not element so we set it to its parent elem
+      commonParentElement = commonParentElement.parentElement;
+    }
+
+    const { startOffset, endOffset } = getNonWhitespaceOffset(range);
+
+    const start = {
+      startContainer: range.startContainer,
+      startOffset
+    };
+
+    const end = {
+      endContainer: range.endContainer,
+      endOffset
+    };
+
     const isBackwards = isSelectionBackwards(selection);
+
     let elemToNormalize = isBackwards
       ? range.startContainer
       : range.endContainer;
@@ -35,68 +44,74 @@ export default class SelectionRange {
       elemToNormalize = elemToNormalize.parentElement;
     }
 
-    return new SelectionRange(range, elemToNormalize, isBackwards);
+    return new SelectionRange(
+      start,
+      end,
+      selectionString,
+      commonParentElement,
+      isBackwards,
+      elemToNormalize
+    );
   }
 
-  constructor(range, elemToNormalize, isBackwards) {
-    this._range = range;
-    this._elemToNormalize = elemToNormalize;
-    this._isBackwards = isBackwards;
-  }
-
-  get isBackwards() {
-    return this._isBackwards;
+  constructor(
+    start,
+    end,
+    selectionString,
+    commonParentElement,
+    isBackwards,
+    elemToNormalize
+  ) {
+    this.start = start;
+    this.end = end;
+    this.selectionString = selectionString;
+    this.commonParentElement = commonParentElement;
+    this.isBackwards = isBackwards;
+    this.elemToNormalize = elemToNormalize;
+    this.selectedRanges = this._getAllSelectedRanges();
   }
 
   changeNormalizeElem() {
-    this._isBackwards = !this._isBackwards;
+    this.isBackwards = !this.isBackwards; // side effect, refactor this soon
 
-    let newNormalizeElem = this._isBackwards
-      ? this._range.startContainer
-      : this._range.endContainer;
+    let newNormalizeElem = this.isBackwards
+      ? this.range.startContainer
+      : this.range.endContainer;
 
     if (newNormalizeElem.nodeType && newNormalizeElem.nodeType === 3) {
       newNormalizeElem = newNormalizeElem.parentElement;
     }
 
-    this._elemToNormalize = newNormalizeElem;
+    this.elemToNormalize = newNormalizeElem;
   }
 
   normalize() {
-    this._elemToNormalize.normalize();
+    this.elemToNormalize.normalize();
   }
 
-  getAllSelectedRanges() {
-    let container = this._range.commonAncestorContainer;
-    if (container.nodeType !== 1) {
-      container = container.parentElement; // not element so we set it to its parent elem
-    }
-
+  _getAllSelectedRanges() {
     const selectedRanges = [];
 
     const acceptNodeFn = function(node) {
-      return nodeInSelection(node, this._range)
+      return nodeInSelection(node, this.start, this.end)
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_REJECT;
     };
 
-    const walkerFilter = {
-      acceptNode: acceptNodeFn.bind(this)
-    };
-
     const walker = document.createTreeWalker(
-      container,
+      this.commonParentElement,
       NodeFilter.SHOW_TEXT,
-      walkerFilter
+      {
+        acceptNode: acceptNodeFn.bind(this)
+      }
     );
 
-    const { startContainer, endContainer } = this._range;
-    const { startOffset, endOffset } = getNonWhitespaceOffset(this._range);
+    const { startContainer, startOffset } = this.start;
+    const { endContainer, endOffset } = this.end;
 
     while (walker.nextNode()) {
       const curNode = walker.currentNode;
-
-      const curRange = new Range();
+      const curRange = document.createRange();
 
       if (curNode === startContainer && curNode === endContainer) {
         curRange.setStart(curNode, startOffset);
@@ -116,6 +131,7 @@ export default class SelectionRange {
       }
     }
 
+    console.log('selectedRanges: ', selectedRanges);
     return selectedRanges;
   }
 }
