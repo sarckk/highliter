@@ -3,14 +3,15 @@ import {
   BOTTOM_GAP,
   TOP_GAP,
   POINTER_HEIGHT,
-  ZERO_WIDTH_SPACE
+  ZERO_WIDTH_SPACE,
+  COLOR_HEX,
+  COLOR_NAMES
 } from './constants';
 
-const colorHex = ['#F7A586', '#FAFD22', '#9BEBAA', '#9BC1EB'];
-const colorNames = ['red', 'yellow', 'green', 'blue'];
+const colorHex = [...COLOR_HEX];
 
 function createOption(color) {
-  const colorName = colorNames[colorHex.indexOf(color)];
+  const colorName = COLOR_NAMES[colorHex.indexOf(color)];
   return `<div class='highlight-option highlight-option-${colorName}' data-color=${color}></div>`;
 }
 
@@ -40,6 +41,7 @@ function getInsertionMarker(ranges, isBackwards) {
   const tempMarker = document.createElement('span');
 
   tempMarker.innerHTML = ZERO_WIDTH_SPACE; // zero-width character
+  tempMarker.style.border = '1px solid red';
 
   const rangeCopy = range.cloneRange();
   rangeCopy.collapse(isBackwards); // if isBackwards is true, collapse(true) collapses to the start
@@ -48,7 +50,8 @@ function getInsertionMarker(ranges, isBackwards) {
   return tempMarker;
 }
 
-function calcMenuPosition(menu, isBackwards, selectedRanges) {
+function calcMenuPosition(menu, range) {
+  const { isBackwards, selectedRanges } = range;
   let positionAdjusted = false;
 
   /* First get the insertion marker placed at where it ought to be
@@ -116,14 +119,12 @@ function showMenu(range) {
 
   menu.style.display = 'block';
 
-  const { isBackwards, selectedRanges } = range;
-  console.log('selectedRanges at first: ', selectedRanges);
-
   const { leftOffset, topOffset, positionAdjusted } = calcMenuPosition(
     menu,
-    isBackwards,
-    selectedRanges
+    range
   );
+
+  const { isBackwards } = range;
 
   menu.style.left = `${leftOffset}px`;
   menu.style.top = `${topOffset}px`;
@@ -140,14 +141,11 @@ function showMenu(range) {
   optionList.forEach(option => {
     // eslint-disable-next-line no-param-reassign
     option.onclick = () => {
-      console.log('Selected ranges in onclick fn: ', selectedRanges);
-
       option.dispatchEvent(
         new CustomEvent('highlight', {
           bubbles: true,
           composed: true,
           detail: {
-            selectedRanges,
             color: option.dataset.color
           }
         })

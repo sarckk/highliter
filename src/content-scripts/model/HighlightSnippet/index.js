@@ -10,8 +10,6 @@ class HighlightSnippet extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log('CALLED');
-
     this.style.backgroundColor = this.color;
     this.setAttribute('data-highlight-id', this.id);
 

@@ -1,7 +1,15 @@
 export function getDocumentSelection() {
   const selection = document.getSelection();
 
-  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+  if (
+    !selection ||
+    selection.rangeCount === 0 ||
+    selection.isCollapsed ||
+    !selection.anchorNode ||
+    !selection.focusNode ||
+    selection.anchorNode.nodeType !== 3 ||
+    selection.focusNode.nodeType !== 3
+  ) {
     return null;
   }
 
@@ -16,46 +24,38 @@ export function isSelectionBackwards(selection) {
   return testRange.collapsed;
 }
 
-export function nodeInSelection(node, start, end) {
-  const range = document.createRange();
-  range.setStart(start.startContainer, start.startOffset);
-  range.setEnd(end.endContainer, end.endOffset);
-
+export function nodeInSelection(range, node) {
   return (
-    node != null && !node.data.match(/^\s*$/) && range.intersectsNode(node)
+    node != null &&
+    !node.data.match(/^\s*$/) &&
+    node.nodeType !== 8 && // node is not comment node
+    node.parentElement.tagName !== 'SCRIPT' &&
+    node.parentElement.tagName !== 'STYLE' &&
+    node.parentElement.tagName !== 'NOSCRIPT' &&
+    node.parentElement.offsetParent !== null && // not visible in the page
+    range.intersectsNode(node)
   );
 }
 
 export function getNonWhitespaceOffset(range) {
-  let { startContainer, endContainer, startOffset, endOffset } = range;
+  const { startContainer, endContainer } = range;
+  let { startOffset, endOffset } = range;
   const startEndSameContainers = startContainer === endContainer;
 
-  console.log(`before: ${startOffset} and ${endOffset}`);
-
-  while (startContainer.nodeType !== 3) {
-    startContainer = startContainer.firstChild;
-  }
-
-  while (endContainer.nodeType !== 3) {
-    endContainer = endContainer.firstChild;
-  }
-
   while (
-    startContainer.data.charAt(startOffset).match(/^\s*$/) &&
     startOffset <
-      (startEndSameContainers ? endOffset : startContainer.data.length)
+      (startEndSameContainers ? endOffset : startContainer.data.length) &&
+    startContainer.data.charAt(startOffset).match(/^\s*$/)
   ) {
     startOffset += 1;
   }
 
   while (
-    endContainer.data.charAt(endOffset - 1).match(/^\s*$/) &&
-    endOffset > (startEndSameContainers ? startOffset : 0)
+    endOffset > (startEndSameContainers ? startOffset : 0) &&
+    endContainer.data.charAt(endOffset - 1).match(/^\s*$/)
   ) {
     endOffset -= 1;
   }
-
-  console.log(`after: ${startOffset} and ${endOffset}`);
 
   return { startOffset, endOffset };
 }

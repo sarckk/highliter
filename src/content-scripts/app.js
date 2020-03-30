@@ -2,21 +2,28 @@ import SelectionRange from './model/SelectionRange';
 import '@webcomponents/custom-elements';
 import { defineHighlightSnippet } from './model/HighlightSnippet';
 import { prepareMenu, showMenu, hideMenu } from './util/menu';
-import { highlight } from './util/highlight';
-import { loadHighlights } from './db/store';
+import { highlightFromRange } from './util/highlight';
+import Store from './db/store';
+import { getDocumentSelection, isSelectionBackwards } from './util/selection';
+
+const store = new Store(window.location.href);
 
 // initialisation
+// store.clearAll();
 defineHighlightSnippet();
 prepareMenu();
-loadHighlights();
+
+window.addEventListener('load', () => {
+  store.loadHighlights();
+});
 
 let currentMenu = null;
-let range = null;
+let selectionRange = null;
 
 function cleanup() {
   hideMenu();
   currentMenu = null;
-  range.normalize();
+  selectionRange.normalize();
   document.getSelection().removeAllRanges();
 }
 
@@ -25,10 +32,26 @@ document.onmouseup = function() {
     return;
   }
 
-  range = SelectionRange.fromDocumentSelection();
+  const selection = getDocumentSelection();
 
-  if (range) {
-    const menu = showMenu(range);
+  if (!selection) {
+    return;
+  }
+
+  const range = selection.getRangeAt(0);
+  const isBackwards = isSelectionBackwards(selection);
+  const text = range.toString();
+
+  try {
+    selectionRange = SelectionRange.fromRange(range, isBackwards, text);
+    console.log('selectionRange:', selectionRange);
+  } catch (e) {
+    console.error('Error: ', e.message);
+    return;
+  }
+
+  if (selectionRange) {
+    const menu = showMenu(selectionRange);
     currentMenu = menu;
   }
 };
@@ -47,13 +70,17 @@ document.onmousedown = function(e) {
 };
 
 document.addEventListener('highlight', e => {
-  const { selectedRanges, color } = e.detail;
-  console.log('in event listener', selectedRanges);
+  cleanup(); // do cleanup first because normalization has to take place before storing highlight info (since it makes use of .childNodes)
 
-  if (!selectedRanges || !color) {
+  const { color } = e.detail;
+
+  if (!color) {
     return;
   }
 
-  highlight(selectedRanges, color);
-  cleanup();
+  const highlightInfo = selectionRange.getHighlightInfo();
+  console.log('highlightInfo created: ', highlightInfo);
+
+  const highlightId = highlightFromRange(selectionRange.selectedRanges, color);
+  store.saveHighlight(highlightInfo, color, highlightId);
 });
