@@ -6,9 +6,9 @@ import { getCommonEnclosingElement } from './dom';
 function highlightFromRange(selectionRange, color, id) {
   const HighlightSnippet = window.customElements.get('highlight-snippet');
   const uuid = id || uuidv4();
-  const selectedRanges = getHighlightRanges(selectionRange);
+  const { highlightRanges } = selectionRange;
 
-  selectedRanges.forEach(range => {
+  highlightRanges.forEach(range => {
     const snippet = new HighlightSnippet(color, uuid);
     document.body.append(snippet); // add to document first to trigger connectedCallback()
     range.surroundContents(snippet);
@@ -20,9 +20,9 @@ function highlightFromRange(selectionRange, color, id) {
 function highlightFromStore({
   start,
   end,
+  text,
   isBackwards,
   normalizeElemChanged,
-  text,
   color,
   id
 }) {
@@ -54,14 +54,13 @@ function highlightFromStore({
   range.setStart(startContainer, start.innerOffset);
   range.setEnd(endContainer, end.innerOffset);
 
-  const commonEnclosingElement = getCommonEnclosingElement(
-    range.commonAncestorContainer
-  );
+  const commonEnclosingElement = getCommonEnclosingElement(range);
+  const highlightRanges = getHighlightRanges(range, commonEnclosingElement);
 
   const selectionRange = new SelectionRange(
     range,
+    highlightRanges,
     text,
-    commonEnclosingElement,
     isBackwards,
     null
   );

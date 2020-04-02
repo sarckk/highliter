@@ -62,8 +62,9 @@ document.addEventListener('highlight', e => {
   if (!color) return;
 
   const highlightInfo = selectionRange.getHighlightInfo();
-  console.log('highlightInfo created: ', highlightInfo);
 
   const highlightId = highlightFromRange(selectionRange, color);
+
+  console.log('highlightInfo created: ', highlightInfo);
   store.saveHighlight(highlightInfo, color, highlightId);
 });

@@ -44,14 +44,6 @@ function getNonWhitespaceOffset(range) {
   let { startOffset, endOffset } = range;
   const startEndSameContainers = startContainer === endContainer;
 
-  if (startOffset === startContainer.data.length) {
-    startOffset = -1;
-  }
-
-  if (endOffset === 0) {
-    endOffset = -1;
-  }
-
   while (
     startOffset <
       (startEndSameContainers ? endOffset : startContainer.data.length) &&
@@ -67,23 +59,15 @@ function getNonWhitespaceOffset(range) {
     endOffset -= 1;
   }
 
-  return { startOffset, endOffset };
+  return { sOffset: startOffset, eOffset: endOffset };
 }
 
-function getHighlightRanges(selectionRange) {
-  const {
-    startContainer,
-    startOffset,
-    endContainer,
-    endOffset
-  } = selectionRange.range;
-
-  const range = document.createRange();
-  range.setStart(startContainer, startOffset);
-  range.setEnd(endContainer, endOffset);
+function getHighlightRanges(range, commonEnclosingElement) {
+  const { startContainer, endContainer } = range;
+  const { sOffset, eOffset } = getNonWhitespaceOffset(range);
 
   const walker = document.createTreeWalker(
-    selectionRange.commonEnclosingElement,
+    commonEnclosingElement,
     NodeFilter.SHOW_TEXT,
     {
       acceptNode(node) {
@@ -102,14 +86,14 @@ function getHighlightRanges(selectionRange) {
     const curRange = document.createRange();
 
     if (curNode === startContainer && curNode === endContainer) {
-      curRange.setStart(curNode, startOffset);
-      curRange.setEnd(curNode, endOffset);
+      curRange.setStart(curNode, sOffset);
+      curRange.setEnd(curNode, eOffset);
     } else if (curNode === startContainer) {
-      curRange.setStart(curNode, startOffset);
+      curRange.setStart(curNode, sOffset);
       curRange.setEnd(curNode, curNode.data.length);
     } else if (curNode === endContainer) {
       curRange.setStart(curNode, 0);
-      curRange.setEnd(curNode, endOffset);
+      curRange.setEnd(curNode, eOffset);
     } else {
       curRange.selectNode(curNode);
     }

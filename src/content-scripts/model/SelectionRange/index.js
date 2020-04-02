@@ -1,70 +1,59 @@
-import {
-  getNonWhitespaceOffset,
-  isSelectionBackwards
-} from '../../util/selection';
+import { isSelectionBackwards, getHighlightRanges } from '../../util/selection';
 import { getElemToNormalize, getDOMData } from './dom';
 import {
-  getClosestPrevTextNode,
+  getCommonEnclosingElement,
   getClosestNextTextNode,
-  getCommonEnclosingElement
+  getClosestPrevTextNode
 } from '../../util/dom';
 import { NODE_TYPE_TEXT } from '../../util/constants';
 
 export default class SelectionRange {
   static fromSelection(selection) {
-    const isBackwards = isSelectionBackwards(selection);
     const range = selection.getRangeAt(0);
-    console.log('Range: ', range.cloneRange());
-    const { startContainer, endContainer } = range;
+    console.log('range:', range);
 
-    // check if node's start is not text node, in which case getNext/getPrev closest text node;
-    if (startContainer.nodeType !== NODE_TYPE_TEXT) {
-      const nextTextNode = getClosestNextTextNode(startContainer, false);
+    if (range.startContainer.nodeType !== NODE_TYPE_TEXT) {
+      const nextTextNode = getClosestNextTextNode(range.startContainer, false);
       range.setStart(nextTextNode, 0);
     }
 
-    if (endContainer.nodeType !== NODE_TYPE_TEXT) {
-      const prevTextNode = getClosestPrevTextNode(endContainer, false);
+    if (range.endContainer.nodeType !== NODE_TYPE_TEXT) {
+      const prevTextNode = getClosestPrevTextNode(range.endContainer, false);
       range.setEnd(prevTextNode, prevTextNode.data.length);
     }
 
-    const { startOffset, endOffset } = getNonWhitespaceOffset(range);
-    range.setStart(range.startContainer, startOffset);
-    range.setEnd(range.endContainer, endOffset);
-
-    if (startOffset === -1) {
-      const prevTextNode = getClosestPrevTextNode(range.endContainer, false);
-      range.setStart(prevTextNode, prevTextNode.data.length);
-    }
-
-    if (endOffset === -1) {
-      const nextTextNode = getClosestNextTextNode(range.startContainer, false);
-      range.setEnd(nextTextNode);
-    }
-
-    const text = range.toString();
     const commonEnclosingElement = getCommonEnclosingElement(range);
-    const elemToNormalize = getElemToNormalize(range, isBackwards);
+
+    const highlightRanges = getHighlightRanges(range, commonEnclosingElement);
+
+    if (highlightRanges.length === 0) {
+      throw new Error('Invalid highlight selection - no text nodes selected');
+    }
+
+    const firstHRange = highlightRanges[0];
+    const lastHRange = highlightRanges.slice(-1)[0];
+
+    const adjustedRange = new Range();
+    adjustedRange.setStart(firstHRange.startContainer, firstHRange.startOffset);
+    adjustedRange.setEnd(lastHRange.endContainer, lastHRange.endOffset);
+
+    const isBackwards = isSelectionBackwards(selection);
+    const text = adjustedRange.toString();
+    const elemToNormalize = getElemToNormalize(adjustedRange, isBackwards);
 
     return new SelectionRange(
-      range,
+      adjustedRange,
+      highlightRanges,
       text,
-      commonEnclosingElement,
       isBackwards,
       elemToNormalize
     );
   }
 
-  constructor(
-    range,
-    text,
-    commonEnclosingElement,
-    isBackwards,
-    elemToNormalize
-  ) {
+  constructor(range, highlightRanges, text, isBackwards, elemToNormalize) {
     this.range = range;
+    this.highlightRanges = highlightRanges;
     this.text = text;
-    this.commonEnclosingElement = commonEnclosingElement;
     this.isBackwards = isBackwards;
     this.elemToNormalize = elemToNormalize;
     this.normalizeElemChanged = false;
