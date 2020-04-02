@@ -3,10 +3,10 @@ import chroma from 'chroma-js';
 import { getSnippetsByDataId } from '../../util/dom';
 
 class HighlightSnippet extends HTMLElement {
-  constructor(color, uuid) {
+  constructor(color, id) {
     super();
     this.color = color;
-    this.id = uuid;
+    this.id = id;
   }
 
   connectedCallback() {

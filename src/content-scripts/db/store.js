@@ -31,8 +31,6 @@ export default class Store {
       };
 
       if (pageHighlights.some(highlight => highlight.id === id)) {
-        console.log('Highlight id already exists; overriding past value');
-
         pageHighlights.map(highlight =>
           highlight.id === id ? newHighlight : highlight
         );

@@ -1,9 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import SelectionRange from '../model/SelectionRange';
+import { getHighlightRanges } from './selection';
+import { getCommonEnclosingElement } from './dom';
 
-function highlightFromRange(selectedRanges, color, id) {
+function highlightFromRange(selectionRange, color, id) {
   const HighlightSnippet = window.customElements.get('highlight-snippet');
   const uuid = id || uuidv4();
+  const selectedRanges = getHighlightRanges(selectionRange);
 
   selectedRanges.forEach(range => {
     const snippet = new HighlightSnippet(color, uuid);
@@ -33,11 +36,6 @@ function highlightFromStore({
     end.parentOffset
   ];
 
-  console.log(
-    'DEBUG: list of a tags in the document: ',
-    document.body.querySelectorAll(end.parentTag)
-  );
-
   // now normalize the relevant parent so that we get the initial .childNodes when the highlight range was
   // serialized. This is done because when we are generating the highlights directly from store,
   // there is no normalizing done to get rid of the whitespace characters automatically put in by HTML
@@ -56,10 +54,19 @@ function highlightFromStore({
   range.setStart(startContainer, start.innerOffset);
   range.setEnd(endContainer, end.innerOffset);
 
-  const selectionRange = SelectionRange.fromRange(range, isBackwards, text);
-  console.log('SelectedRange from stored db: ', selectionRange.selectedRanges);
+  const commonEnclosingElement = getCommonEnclosingElement(
+    range.commonAncestorContainer
+  );
 
-  highlightFromRange(selectionRange.selectedRanges, color, id);
+  const selectionRange = new SelectionRange(
+    range,
+    text,
+    commonEnclosingElement,
+    isBackwards,
+    null
+  );
+
+  highlightFromRange(selectionRange, color, id);
 }
 
 export { highlightFromRange, highlightFromStore };

@@ -1,108 +1,80 @@
-import { getNonWhitespaceOffset } from '../../util/selection';
-import { getIndividualRanges } from './selection';
-import { getDOMData } from './dom';
+import {
+  getNonWhitespaceOffset,
+  isSelectionBackwards
+} from '../../util/selection';
+import { getElemToNormalize, getDOMData } from './dom';
+import {
+  getClosestPrevTextNode,
+  getClosestNextTextNode,
+  getCommonEnclosingElement
+} from '../../util/dom';
+import { NODE_TYPE_TEXT } from '../../util/constants';
 
 export default class SelectionRange {
-  static fromRange(range, isBackwards, text) {
-    let commonParentElement = range.commonAncestorContainer;
+  static fromSelection(selection) {
+    const isBackwards = isSelectionBackwards(selection);
+    const range = selection.getRangeAt(0);
+    console.log('Range: ', range.cloneRange());
+    const { startContainer, endContainer } = range;
 
-    if (commonParentElement.nodeType !== 1) {
-      // not element so we set it to its parent elem
-      commonParentElement = commonParentElement.parentElement;
+    // check if node's start is not text node, in which case getNext/getPrev closest text node;
+    if (startContainer.nodeType !== NODE_TYPE_TEXT) {
+      const nextTextNode = getClosestNextTextNode(startContainer, false);
+      range.setStart(nextTextNode, 0);
+    }
+
+    if (endContainer.nodeType !== NODE_TYPE_TEXT) {
+      const prevTextNode = getClosestPrevTextNode(endContainer, false);
+      range.setEnd(prevTextNode, prevTextNode.data.length);
     }
 
     const { startOffset, endOffset } = getNonWhitespaceOffset(range);
+    range.setStart(range.startContainer, startOffset);
+    range.setEnd(range.endContainer, endOffset);
 
-    let start = {
-      container: range.startContainer,
-      offset: startOffset
-    };
-
-    let end = {
-      container: range.endContainer,
-      offset: endOffset
-    };
-
-    const selectedRanges = getIndividualRanges(start, end, commonParentElement);
-
-    if (selectedRanges.length === 0) {
-      throw new Error('Selection contains only white-space characters');
+    if (startOffset === -1) {
+      const prevTextNode = getClosestPrevTextNode(range.endContainer, false);
+      range.setStart(prevTextNode, prevTextNode.data.length);
     }
 
-    const adjustedRange = document.createRange();
-    const firstRange = selectedRanges[0];
-    const lastRange = selectedRanges.slice(-1)[0];
-
-    adjustedRange.setStart(firstRange.startContainer, firstRange.startOffset);
-    adjustedRange.setEnd(lastRange.endContainer, lastRange.endOffset);
-
-    start = {
-      container: adjustedRange.startContainer,
-      offset: adjustedRange.startOffset
-    };
-
-    end = {
-      container: adjustedRange.endContainer,
-      offset: adjustedRange.endOffset
-    };
-
-    const selectionString = text || adjustedRange.toString();
-    let newCommonParentElement = adjustedRange.commonAncestorContainer;
-
-    if (newCommonParentElement.nodeType !== 1) {
-      // not element so we set it to its parent elem
-      newCommonParentElement = newCommonParentElement.parentElement;
+    if (endOffset === -1) {
+      const nextTextNode = getClosestNextTextNode(range.startContainer, false);
+      range.setEnd(nextTextNode);
     }
 
-    let elemToNormalize = isBackwards ? start.container : end.container;
-
-    if (elemToNormalize.nodeType && elemToNormalize.nodeType === 3) {
-      elemToNormalize = elemToNormalize.parentElement;
-    }
+    const text = range.toString();
+    const commonEnclosingElement = getCommonEnclosingElement(range);
+    const elemToNormalize = getElemToNormalize(range, isBackwards);
 
     return new SelectionRange(
-      start,
-      end,
-      selectionString,
-      newCommonParentElement,
+      range,
+      text,
+      commonEnclosingElement,
       isBackwards,
-      elemToNormalize,
-      selectedRanges
+      elemToNormalize
     );
   }
 
   constructor(
-    start,
-    end,
-    selectionString,
-    commonParentElement,
+    range,
+    text,
+    commonEnclosingElement,
     isBackwards,
-    elemToNormalize,
-    selectedRanges
+    elemToNormalize
   ) {
-    this.start = start;
-    this.end = end;
-    this.selectionString = selectionString;
-    this.commonParentElement = commonParentElement;
+    this.range = range;
+    this.text = text;
+    this.commonEnclosingElement = commonEnclosingElement;
     this.isBackwards = isBackwards;
     this.elemToNormalize = elemToNormalize;
-    this.selectedRanges = selectedRanges;
     this.normalizeElemChanged = false;
   }
 
   changeNormalizeElem() {
     this.isBackwards = !this.isBackwards; // side effect, refactor this soon
+    const newElemToNormalize = getElemToNormalize(this.range, this.isBackwards);
+    this.elemToNormalize = newElemToNormalize;
     this.normalizeElemChanged = true;
-
-    let newNormalizeElem = this.isBackwards
-      ? this.start.container
-      : this.end.container;
-
-    if (newNormalizeElem.nodeType && newNormalizeElem.nodeType === 3) {
-      newNormalizeElem = newNormalizeElem.parentElement;
-    }
-
-    this.elemToNormalize = newNormalizeElem;
   }
 
   normalize() {
@@ -110,12 +82,15 @@ export default class SelectionRange {
   }
 
   getHighlightInfo() {
-    const startDOM = getDOMData(this.start);
-    const endDOM = getDOMData(this.end);
+    const startDOM = getDOMData(
+      this.range.startContainer,
+      this.range.startOffset
+    );
+    const endDOM = getDOMData(this.range.endContainer, this.range.endOffset);
     return {
       start: startDOM,
       end: endDOM,
-      text: this.selectionString,
+      text: this.text,
       isBackwards: this.isBackwards,
       normalizeElemChanged: this.normalizeElemChanged
     };
