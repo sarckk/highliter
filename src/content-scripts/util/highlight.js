@@ -5,12 +5,13 @@ import { getCommonEnclosingElement } from './dom';
 
 function highlightFromRange(selectionRange, color, id) {
   const HighlightSnippet = window.customElements.get('highlight-snippet');
+  console.log('Custom element', HighlightSnippet);
   const uuid = id || uuidv4();
   const { highlightRanges } = selectionRange;
 
   highlightRanges.forEach(range => {
     const snippet = new HighlightSnippet(color, uuid);
-    document.body.append(snippet); // add to document first to trigger connectedCallback()
+    console.log('snippet', snippet);
     range.surroundContents(snippet);
   });
 

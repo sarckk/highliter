@@ -61,22 +61,25 @@
   border-width: 2px;
 }
 
-.highlight-option-red {
+.highlight-option-red{
   background-color: #f7a586;
   border-color: #e79778;
 }
 
-.highlight-option-yellow {
+.highlight-option-yellow
+{
   background-color: #fafd22;
   border-color: #e9ee00;
 }
 
-.highlight-option-green {
+.highlight-option-green
+{
   background-color: #9bebaa;
   border-color: #8cdc9b;
 }
 
-.highlight-option-blue {
+.highlight-option-blue{
   background-color: #9bc1eb;
   border-color: #8cb2dc;
 }
+

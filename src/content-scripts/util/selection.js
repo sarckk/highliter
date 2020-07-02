@@ -1,5 +1,3 @@
-import { NODE_TYPE_COMMENT } from './constants';
-
 function getDocumentSelection() {
   const selection = document.getSelection();
 
@@ -30,7 +28,6 @@ function nodeInSelection(range, node) {
   return (
     node != null &&
     !node.data.match(/^\s*$/) &&
-    node.nodeType !== NODE_TYPE_COMMENT &&
     node.parentElement.tagName !== 'SCRIPT' &&
     node.parentElement.tagName !== 'STYLE' &&
     node.parentElement.tagName !== 'NOSCRIPT' &&

@@ -3,10 +3,6 @@
   "version": "1.0",
   "description": "Remember and organize your thoughts while browsing",
   "permissions": ["storage", "activeTab", "declarativeContent"],
-  "background": {
-    "scripts": ["src/background/index.js"],
-    "persistent": false
-  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

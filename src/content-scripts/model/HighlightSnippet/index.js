@@ -1,31 +1,10 @@
-/* eslint-disable no-param-reassign */
-import chroma from 'chroma-js';
-import { getSnippetsByDataId } from '../../util/dom';
-
 class HighlightSnippet extends HTMLElement {
   constructor(color, id) {
     super();
     this.color = color;
-    this.id = id;
-  }
-
-  connectedCallback() {
-    this.style.backgroundColor = this.color;
-    this.setAttribute('data-highlight-id', this.id);
-
-    this.onmouseenter = e => {
-      getSnippetsByDataId(e.target.dataset.highlightId).forEach(s => {
-        s.style.backgroundColor = chroma(s.style.backgroundColor)
-          .darken(0.3)
-          .hex();
-      });
-    };
-
-    this.onmouseout = e => {
-      getSnippetsByDataId(e.target.dataset.highlightId).forEach(s => {
-        s.style.backgroundColor = this.color;
-      });
-    };
+    this.setAttribute('data-highlight-id', id);
+    this.classList.add('highlight-snippet');
+    this.classList.add(`highlight-${this.color}`);
   }
 }
 

@@ -7,3 +7,23 @@
   position: absolute;
   z-index: 9999;
 }
+
+.highlight-snippet{
+	display: inline;
+}
+
+.highlight-red {
+  background-color: #f7a586;
+}
+
+.highlight-yellow {
+  background-color: #fafd22;
+}
+
+.highlight-green {
+  background-color: #9bebaa;
+}
+
+.highlight-blue {
+  background-color: #9bc1eb;
+}

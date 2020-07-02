@@ -1,18 +1,11 @@
 /* eslint-disable no-undef */
-import {
-  BOTTOM_GAP,
-  TOP_GAP,
-  POINTER_HEIGHT,
-  COLOR_HEX,
-  COLOR_NAMES
-} from './constants';
+import { BOTTOM_GAP, TOP_GAP, POINTER_HEIGHT, COLORS } from './constants';
 import { addInsertionMarker } from './dom';
 
-const colorHex = [...COLOR_HEX];
+const colors = [...COLORS];
 
 function createOption(color) {
-  const colorName = COLOR_NAMES[colorHex.indexOf(color)];
-  return `<div class='highlight-option highlight-option-${colorName}' data-color=${color}></div>`;
+  return `<div class='highlight-option highlight-option-${color}' data-color=${color}></div>`;
 }
 
 function prepareMenu() {
@@ -27,7 +20,7 @@ function prepareMenu() {
       )}">
       <div class='highlight-menu-pointer'></div>
       <div class='highlight-menu-options'>
-          ${colorHex.map(createOption).join('')}
+          ${colors.map(createOption).join('')}
       </div>
     </div>
   `;
@@ -58,7 +51,6 @@ function calcMenuPosition(menu, selectionRange) {
 
   if (windowRelativeTopOffset < 0 && isBackwards) {
     marker.remove();
-    selectionRange.normalize();
     marker = addInsertionMarker(range, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
     topOffset = markerCoords.bottom + TOP_GAP - POINTER_HEIGHT;
@@ -66,7 +58,6 @@ function calcMenuPosition(menu, selectionRange) {
     positionAdjusted = true;
   } else if (windowRelativeTopOffset > maxTopOffset && !isBackwards) {
     marker.remove();
-    selectionRange.normalize();
     marker = addInsertionMarker(range, !isBackwards);
     markerCoords = marker.getBoundingClientRect();
     topOffset = markerCoords.top - menu.offsetHeight - BOTTOM_GAP;
@@ -126,16 +117,17 @@ function showMenu(selectionRange) {
 
   if (positionAdjusted) {
     pointer.classList.add(!isBackwards ? 'pointer-bottom' : 'pointer-top');
-    selectionRange.changeNormalizeElem();
   } else {
     pointer.classList.add(isBackwards ? 'pointer-bottom' : 'pointer-top');
   }
 
   const optionList = menu.shadowRoot.querySelectorAll('.highlight-option');
+  console.log('optionList: ', optionList);
 
   optionList.forEach(option => {
     // eslint-disable-next-line no-param-reassign
     option.onclick = () => {
+      console.log('Event dispatched: ', option.dataset.color);
       option.dispatchEvent(
         new CustomEvent('highlight', {
           bubbles: true,
