@@ -1,13 +1,10 @@
+/* eslint-disable no-plusplus */
 import {
   ZERO_WIDTH_SPACE,
   NODE_TYPE_COMMENT,
   NODE_TYPE_TEXT,
   NODE_TYPE_ELEMENT
 } from './constants';
-
-function getSnippetsByDataId(id) {
-  return document.querySelectorAll(`[data-highlight-id='${id}']`);
-}
 
 function addInsertionMarker(range, isBackwards) {
   const tempMarker = document.createElement('span');
@@ -103,7 +100,7 @@ function getClosestPrevTextNode(node, includeItself) {
 function getCommonEnclosingElement(range) {
   let parent = range.commonAncestorContainer;
 
-  if (parent.nodeType !== 1) {
+  if (parent.nodeType !== NODE_TYPE_ELEMENT) {
     // not element so we set it to its parent elem
     parent = parent.parentElement;
   }
@@ -111,10 +108,89 @@ function getCommonEnclosingElement(range) {
   return parent;
 }
 
+function getElemToNormalize(range, isBackwards) {
+  let elemToNormalize = isBackwards ? range.startContainer : range.endContainer;
+
+  if (elemToNormalize.nodeType && elemToNormalize.nodeType === NODE_TYPE_TEXT) {
+    elemToNormalize = elemToNormalize.parentElement;
+  }
+  return elemToNormalize;
+}
+
+function getNodeOffset(node) {
+  let n = node;
+  let offset = 0;
+  while (n.previousSibling) {
+    n = n.previousSibling;
+    offset += n.textContent.length;
+  }
+  return offset;
+}
+
+function getDOMData(container, offset) {
+  // container is guaranteed to be a text node (e.g. p.firstChild)
+  const parent = container.parentElement;
+  const parentTag = parent.tagName.toLowerCase();
+  const listOfParentTags = document.querySelectorAll(parentTag);
+  const parentOffset = Array.from(listOfParentTags).indexOf(parent);
+  const absOffset = getNodeOffset(container) + offset;
+
+  return {
+    parentTag,
+    parentOffset,
+    absOffset
+  };
+}
+
+function getElemByTag(tagName, offset) {
+  return document.querySelectorAll(tagName)[offset];
+}
+
+function absToRelativeOffset(parent, absOffset, isStartOffset = false) {
+  const stack = [parent];
+  let currentNode = null;
+  let currentOffset = 0;
+  let nextOffset;
+
+  while (stack.length !== 0) {
+    currentNode = stack.pop();
+
+    if (currentNode.nodeType !== NODE_TYPE_TEXT) {
+      for (let i = currentNode.childNodes.length - 1; i >= 0; i--) {
+        stack.push(currentNode.childNodes[i]);
+      }
+    } else {
+      nextOffset = currentOffset + currentNode.length;
+
+      if (isStartOffset) {
+        /*
+          if calculating startOffset, relativeOffset can be 0, in which case
+          we break only when absOffset is strictly less than nextOffset
+          to break on the correct $currentNode
+        */
+        if (absOffset < nextOffset) {
+          break;
+        }
+      } else if (absOffset <= nextOffset) {
+        break;
+      }
+
+      currentOffset = nextOffset;
+    }
+  }
+
+  const relativeOffset = absOffset - currentOffset;
+
+  return { node: currentNode, offset: relativeOffset };
+}
+
 export {
-  getSnippetsByDataId,
   addInsertionMarker,
   getClosestNextTextNode,
   getClosestPrevTextNode,
-  getCommonEnclosingElement
+  getCommonEnclosingElement,
+  getElemToNormalize,
+  getDOMData,
+  getElemByTag,
+  absToRelativeOffset
 };

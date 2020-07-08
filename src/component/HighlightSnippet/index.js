@@ -1,13 +1,15 @@
 class HighlightSnippet extends HTMLElement {
-  constructor(color, id) {
+  constructor(id, highlightColor, hoverColor) {
     super();
-    this.color = color;
     this.setAttribute('data-highlight-id', id);
     this.classList.add('highlight-snippet');
-    this.classList.add(`highlight-${this.color}`);
+    this.style = `
+      --snippet-highlight-color: ${highlightColor};
+      --snippet-hover-color: ${hoverColor};
+    `;
   }
 }
 
-export function defineHighlightSnippet() {
+export function prepareHighlightSnippet() {
   customElements.define('highlight-snippet', HighlightSnippet);
 }

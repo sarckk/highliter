@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>_underscore demo</title>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.2.3/jscolor.js"></script>
+    <script defer src="./dist/bundle.js"></script>
+    <style>
+      body {
+        padding: 1% 27%;
+        font-family: 'Lucida Grande';
+      }
+
+      .color-panel {
+        position: fixed;
+        top: 30px;
+        left: 12px;
+        padding: 8px 15px;
+        background-color: rgb(240, 240, 240, 0.7);
+        border: 1px dashed rgb(54, 54, 54);
+        border-radius: 4px;
+      }
+
+      .panel-row{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .panel-row:first-child{
+        margin-bottom: 10px;
+      }
+
+      .c-text{
+        color: #333333;
+        font-size: 0.8rem;
+        margin-right: 5px;
+        flex: 20%;
+      }
+
+      .del-prompt{
+        display: block;
+        position: absolute; 
+        color: #F8F8F5;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        background-color: #252525;
+        opacity: 0.9;
+      }
+
+      .del-prompt:hover{
+        color: rgb(197, 197, 197);
+      }
+
+      .del-prompt:after{
+        top: 100%;
+        left: 50%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-color: rgba(136, 183, 213, 0);
+        border-top-color: #464644;
+        border-width: 5px;
+        margin-left: -5px;
+      }
+
+      .hidden{
+        display: none;
+      }
+
+      .jscolor{
+        width: 100px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>_underscore demo</h1>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed congue
+          vitae dui lobortis dignissim. Sed a purus vulputate, finibus tellus
+          et, bibendum nibh. Donec a magna lacus. Ut feugiat scelerisque lorem,
+          a convallis mi hendrerit non. Donec condimentum maximus nisi id
+          auctor. Maecenas luctus tortor ac diam sodales, hendrerit imperdiet
+          nunc faucibus. Curabitur auctor, felis non vulputate vulputate, nulla
+          dolor sagittis massa, at dignissim erat elit sit amet tellus. Cras
+          consequat quam quis ipsum elementum, in mattis enim dapibus. Donec
+          placerat in massa eu ornare. Praesent quis vestibulum purus. Nunc
+          vulputate efficitur cursus. Sed nunc justo, malesuada at tristique
+          vestibulum, pellentesque sed velit. Aliquam erat volutpat. Proin quis
+          ligula bibendum lectus consequat consequat eget id massa.
+          <li>Pellentesque</li>
+          habitant morbi tristique senectus et netus et malesuada fames ac
+          turpis egestas. Sed sed risus faucibus, semper ante nec, commodo erat.
+        </p>
+        <p>
+          Sed vehicula faucibus nisi id dapibus. Mauris placerat, sem sed
+          ultrices commodo, quam justo rhoncus augue, a suscipit ipsum sem sit
+          amet dui. Fusce ac ante blandit, feugiat lacus non, pulvinar eros. Nam
+          iaculis, libero sit amet dignissim interdum, velit ipsum bibendum mi,
+          eget dapibus nunc quam quis justo. Nam eget ex faucibus, sagittis
+          tortor vitae, cursus erat. Donec ac pulvinar metus, quis condimentum
+          lorem. Nulla nec scelerisque diam, gravida ultrices metus. Ut massa
+          velit, viverra sed iaculis
+          <a href="/"
+            >et, varius quis dolor. Ut a facilisis quam. Etiam tincidunt
+            augue</a>nisi, eget ullamcorper urna auctor ac. Morbi fringilla, quam et
+          imperdiet consequat, felis ipsum luctus sem, ac malesuada risus nulla
+          nec massa. Suspendisse potenti. Nulla sagittis enim ante, eget rhoncus
+          lorem tristique id. Praesent nec purus lectus. Pellentesque nec justo
+          rutrum enim auctor consequat sit amet non leo. Integer ornare
+          venenatis vestibulum. Mauris et mattis dui. Nulla ultricies lobortis
+          diam viverra cursus. Fusce eleifend pharetra arcu. Mauris molestie sem
+          condimentum neque porttitor, quis sagittis purus pharetra. Maecenas ut
+          enim sit amet diam imperdiet mollis. Vestibulum vehicula vestibulum
+          molestie. Aenean lacinia varius erat eget egestas. Aliquam sit amet
+          elementum tortor, a fringilla ligula. Nullam vulputate accumsan urna
+          sed gravida. Quisque eleifend tellus nec neque sollicitudin, placerat
+          accumsan turpis aliquam. Nam ipsum enim, fringilla quis dapibus et,
+          tincidunt eu ligula. Etiam porta diam ullamcorper lorem malesuada, sed
+          tincidunt lacus sagittis. Donec molestie leo diam, vel consequat orci
+          ultricies sit amet. Proin dignissim nisi sit amet nibh scelerisque
+          ultrices. Maecenas faucibus ut tellus hendrerit sagittis. Morbi lorem
+          magna, pellentesque quis ex sed, elementum dignissim lacus.
+          Pellentesque a risus sit amet tellus sodales vulputate at quis nisl.
+          Nulla vulputate quam facilisis odio tempor, quis rutrum turpis
+          pharetra. Integer et cursus ante. Nam efficitur risus id elit finibus,
+          id consectetur libero facilisis.
+        </p>
+        <button id="clear_hl">Clear all highlights</button>
+      <div class="color-panel">
+        <div class="panel-row">
+          <div class="c-text">Highlight color </div>
+          <input data-jscolor="" id="hl-color" >
+        </div>
+        <div class="panel-row">
+          <div class="c-text">Hover color </div>
+          <input data-jscolor="" id="hover-color" >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
