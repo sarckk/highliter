@@ -55,6 +55,9 @@ class Highlighter extends EventEmitter {
   };
 
   _initDocumentListeners = () => {
+    document.body.addEventListener('mousedown', () =>
+      window.getSelection().removeAllRanges()
+    );
     document.body.addEventListener('mouseup', this._onSelection);
     document.body.addEventListener('click', this._onMouseClick);
     document.body.addEventListener('highlight', this._createHighlight);
