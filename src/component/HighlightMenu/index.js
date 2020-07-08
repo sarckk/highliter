@@ -37,7 +37,7 @@ class HighlightMenu extends HTMLElement {
     return this.style.display !== 'none';
   }
 
-  show(range, isSelectionBackwards) {
+  show({ range, isSelectionBackwards }) {
     const rects = range.getClientRects();
     if (rects.length === 0) {
       console.error('nothing is selected');
@@ -67,66 +67,6 @@ class HighlightMenu extends HTMLElement {
         .classList.add('up-pointer');
     }
   }
-
-  /*
-  _calcMenuPosition(selectionRange) {
-    const { range, isBackwards } = selectionRange;
-
-    let marker = addInsertionMarker(range, isBackwards);
-    let markerCoords = marker.getBoundingClientRect();
-
-    const maxTopOffset =
-      document.documentElement.clientHeight - this.offsetHeight;
-
-    const topOffsetBackwards =
-      markerCoords.top - this.offsetHeight - BOTTOM_GAP;
-    const topOffsetForwards = markerCoords.bottom + TOP_GAP;
-
-    const windowRelativeTopOffset = isBackwards
-      ? topOffsetBackwards
-      : topOffsetForwards;
-
-    let topOffset;
-
-    if (
-      (windowRelativeTopOffset < 0 && isBackwards) ||
-      (windowRelativeTopOffset > maxTopOffset && !isBackwards)
-    ) {
-      marker.remove();
-      marker = addInsertionMarker(range, !isBackwards);
-      markerCoords = marker.getBoundingClientRect();
-
-      if (isBackwards) {
-        topOffset = markerCoords.bottom + TOP_GAP;
-      } else {
-        topOffset = markerCoords.top - this.offsetHeight - BOTTOM_GAP;
-      }
-    } else {
-      // no change in position of menu, proceed as usual
-      topOffset = windowRelativeTopOffset;
-    }
-
-    // adjust for absolute positioning
-    topOffset += window.pageYOffset;
-
-    // Set left offset so that menu is always in view
-    let leftOffset = markerCoords.left - this.offsetWidth / 2;
-
-    const maxLeftOffset =
-      document.documentElement.clientWidth + this.offsetWidth;
-
-    if (leftOffset < 0) {
-      leftOffset = 0;
-    }
-    if (leftOffset > maxLeftOffset) {
-      leftOffset = maxLeftOffset;
-    }
-
-    marker.remove(); // remove temp marker
-
-    return { leftOffset, topOffset };
-  }
-  */
 }
 
 export function prepareMenu() {

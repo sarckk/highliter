@@ -1,4 +1,5 @@
 import {
+  isEmptyString,
   getClosestNextTextNode,
   getClosestPrevTextNode,
   getDOMData
@@ -24,10 +25,6 @@ function getDocumentSelection() {
   return selection;
 }
 */
-
-function isEmptyString(str) {
-  return str.match(/^\s*$/);
-}
 
 function isSelectionBackwards(selection) {
   const testRange = new Range();

@@ -59,6 +59,13 @@ class Highlighter extends EventEmitter {
     document.body.addEventListener('click', this._onMouseClick);
     document.body.addEventListener('highlight', this._createHighlight);
     document.body.addEventListener('mouseover', this._onSnippetHover);
+    window.addEventListener('resize', this._onWindowResize);
+  };
+
+  _onWindowResize = () => {
+    if (this._currentRange && this.menu.isVisible()) {
+      this.menu.show(this._currentRange);
+    }
   };
 
   _onSelection = () => {
@@ -83,9 +90,14 @@ class Highlighter extends EventEmitter {
         return;
       }
 
-      this._currentRange = cleanedRange;
-      console.log('range after cleaning: ', this._currentRange.cloneRange());
-      this.menu.show(this._currentRange, isBackwards);
+      console.log('range after cleaning: ', cleanedRange.cloneRange());
+
+      this._currentRange = {
+        range: cleanedRange,
+        isSelectionBackwards: isBackwards
+      };
+
+      this.menu.show(this._currentRange);
     }
   };
 
@@ -120,15 +132,18 @@ class Highlighter extends EventEmitter {
   _createHighlight = () => {
     const snippetID = uuidv4();
 
-    // serialize info first before DOM mutation by DOMPainter causes this._currentRange to change
+    // serialize info first before DOM mutation by DOMPainter causes this._currentRange.range to change
     const highlightInfo = serialize(
       snippetID,
-      this._currentRange,
+      this._currentRange.range,
       this.highlightColor,
       this.hoverColor
     );
 
-    const hlWraps = this.DOMPainter.highlight(snippetID, this._currentRange);
+    const hlWraps = this.DOMPainter.highlight(
+      snippetID,
+      this._currentRange.range
+    );
     if (hlWraps.length === 0) {
       console.error('Invalid highlight selection - no text nodes selected');
       return;

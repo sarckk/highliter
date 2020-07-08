@@ -1,20 +1,12 @@
 /* eslint-disable no-plusplus */
 import {
-  ZERO_WIDTH_SPACE,
   NODE_TYPE_COMMENT,
   NODE_TYPE_TEXT,
   NODE_TYPE_ELEMENT
 } from './constants';
 
-function addInsertionMarker(range, isBackwards) {
-  const tempMarker = document.createElement('span');
-  tempMarker.innerHTML = ZERO_WIDTH_SPACE; // zero-width character
-
-  const rangeCopy = range.cloneRange();
-  rangeCopy.collapse(isBackwards); // if isBackwards==true, collapses to the start
-  rangeCopy.insertNode(tempMarker);
-
-  return tempMarker;
+function isEmptyString(str) {
+  return str.match(/^\s*$/);
 }
 
 /**
@@ -23,14 +15,14 @@ function addInsertionMarker(range, isBackwards) {
 function ignorable(node) {
   return (
     node.nodeType === NODE_TYPE_COMMENT ||
-    (node.nodeType === NODE_TYPE_TEXT && node.data.match(/^\s*$/)) ||
+    (node.nodeType === NODE_TYPE_TEXT && isEmptyString(node.data)) ||
     node.nodeType === NODE_TYPE_ELEMENT
   );
 }
 
 function isNonEmptyElement(node) {
   return (
-    node.nodeType === NODE_TYPE_ELEMENT && !node.textContent.match(/^\s*$/)
+    node.nodeType === NODE_TYPE_ELEMENT && !isEmptyString(node.textContent)
   );
 }
 
@@ -108,15 +100,6 @@ function getCommonEnclosingElement(range) {
   return parent;
 }
 
-function getElemToNormalize(range, isBackwards) {
-  let elemToNormalize = isBackwards ? range.startContainer : range.endContainer;
-
-  if (elemToNormalize.nodeType && elemToNormalize.nodeType === NODE_TYPE_TEXT) {
-    elemToNormalize = elemToNormalize.parentElement;
-  }
-  return elemToNormalize;
-}
-
 function getNodeOffset(node) {
   let n = node;
   let offset = 0;
@@ -185,11 +168,10 @@ function absToRelativeOffset(parent, absOffset, isStartOffset = false) {
 }
 
 export {
-  addInsertionMarker,
+  isEmptyString,
   getClosestNextTextNode,
   getClosestPrevTextNode,
   getCommonEnclosingElement,
-  getElemToNormalize,
   getDOMData,
   getElemByTag,
   absToRelativeOffset
