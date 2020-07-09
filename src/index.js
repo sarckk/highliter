@@ -1,6 +1,3 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-undef */
-/* eslint-disable no-multi-assign */
 import { prepareHighlightSnippet } from './component/HighlightSnippet';
 import { prepareMenu } from './component/HighlightMenu';
 import * as store from './db/store';
@@ -19,13 +16,13 @@ class Highlighter extends EventEmitter {
 
   constructor(config = {}) {
     super();
-    this._menu = prepareMenu();
-    this._currentSelection = null;
-    this._options = generateConfig(config);
-    this._currentHighlightColor = this._options.originalHighlightColor;
-    this._currentHoverColor = this._options.originalHoverColor;
-    this.DOMPainter = new DOMPainter(this._options);
-    prepareHighlightSnippet(this._options);
+    this.menu = prepareMenu();
+    this.currentSelection = null;
+    this.options = generateConfig(config);
+    this.currentHighlightColor = this.options.originalHighlightColor;
+    this.currentHoverColor = this.options.originalHoverColor;
+    this.DOMPainter = new DOMPainter(this.options);
+    prepareHighlightSnippet(this.options);
   }
 
   init = () => {
@@ -43,8 +40,8 @@ class Highlighter extends EventEmitter {
       });
     }
 
-    this.setHighlightColor(this._options.originalHighlightColor);
-    this.setHoverColor(this._options.originalHoverColor);
+    this.setHighlightColor(this.options.originalHighlightColor);
+    this.setHoverColor(this.options.originalHoverColor);
     this.emit(Events.LOADED, { numLoaded: highlights.length });
   };
 
@@ -60,8 +57,8 @@ class Highlighter extends EventEmitter {
   };
 
   _onWindowResize = () => {
-    if (this._currentRange && this._menu.isVisible()) {
-      this._menu.show(this._currentRange);
+    if (this.currentRange && this.menu.isVisible()) {
+      this.menu.show(this.currentRange);
     }
   };
 
@@ -73,73 +70,73 @@ class Highlighter extends EventEmitter {
       const isBackwards = isSelectionBackwards(selection);
       const range = selection.getRangeAt(0);
       if (range.collapsed) {
-        if (this._menu.isVisible()) {
-          this._menu.hide();
+        if (this.menu.isVisible()) {
+          this.menu.hide();
         }
         return;
       }
 
       const cleanedRange = cleanRange(range);
       if (!cleanedRange) {
-        if (this._menu.isVisible()) {
-          this._menu.hide();
+        if (this.menu.isVisible()) {
+          this.menu.hide();
         }
         return;
       }
 
       console.log('range after cleaning: ', cleanedRange.cloneRange());
 
-      this._currentRange = {
+      this.currentRange = {
         range: cleanedRange,
         isSelectionBackwards: isBackwards
       };
 
-      this._menu.show(this._currentRange);
+      this.menu.show(this.currentRange);
     }
   };
 
   _onMouseClick = e => {
     const { target } = e;
     if (!isHighlightSnippet(target)) {
-      if (this._prevClickedSnippetID) {
+      if (this.prevClickedSnippetID) {
         this.emit(Events.CLICKED_OUT, {
-          snippetID: this._prevClickedSnippetID
+          snippetID: this.prevClickedSnippetID
         });
-        this._prevClickedSnippetID = null;
+        this.prevClickedSnippetID = null;
       }
       return;
     }
 
     const id = target.dataset.highlightId;
 
-    if (this._prevClickedSnippetID === id) {
+    if (this.prevClickedSnippetID === id) {
       return;
     }
 
-    if (this._prevClickedSnippetID) {
+    if (this.prevClickedSnippetID) {
       this.emit(Events.CLICKED_OUT, {
-        snippetID: this._prevClickedSnippetID
+        snippetID: this.prevClickedSnippetID
       });
     }
 
     this.emit(Events.CLICKED, { snippetID: id });
-    this._prevClickedSnippetID = id;
+    this.prevClickedSnippetID = id;
   };
 
   _createHighlight = () => {
     const snippetID = uuidv4();
 
-    // serialize info first before DOM mutation by DOMPainter causes this._currentRange.range to change
+    // serialize info first before DOM mutation by DOMPainter causes this.currentRange.range to change
     const highlightInfo = serialize(
       snippetID,
-      this._currentRange.range,
-      this._currentHighlightColor,
-      this._currentHoverColor
+      this.currentRange.range,
+      this.currentHighlightColor,
+      this.currentHoverColor
     );
 
     const hlWraps = this.DOMPainter.highlight(
       snippetID,
-      this._currentRange.range
+      this.currentRange.range
     );
     if (hlWraps.length === 0) {
       console.error('Invalid highlight selection - no text nodes selected');
@@ -154,45 +151,41 @@ class Highlighter extends EventEmitter {
   _onSnippetHover = e => {
     const { target } = e;
     if (!isHighlightSnippet(target)) {
-      if (this._currentHoverSnippetID) {
-        this.emit(Events.HOVER_OUT, { snippetID: this._currentHoverSnippetID });
-        this._currentHoverSnippetID = null;
+      if (this.currentHoverSnippetID) {
+        this.emit(Events.HOVER_OUT, { snippetID: this.currentHoverSnippetID });
+        this.currentHoverSnippetID = null;
       }
       return;
     }
     const id = target.dataset.highlightId;
 
-    if (this._currentHoverSnippetID === id) {
+    if (this.currentHoverSnippetID === id) {
       return;
     }
 
-    if (this._currentHoverSnippetID) {
-      this.emit(Events.HOVER_OUT, { snippetID: this._currentHoverSnippetID });
+    if (this.currentHoverSnippetID) {
+      this.emit(Events.HOVER_OUT, { snippetID: this.currentHoverSnippetID });
     }
 
     this.emit(Events.HOVER, { snippetID: id });
-    this._currentHoverSnippetID = id;
+    this.currentHoverSnippetID = id;
   };
 
   setHighlightColor(color) {
-    this._currentHighlightColor = color;
+    this.currentHighlightColor = color;
     this.DOMPainter.setHighlightColor(color);
   }
 
   setHoverColor(color) {
-    this._currentHoverColor = color;
+    this.currentHoverColor = color;
     this.DOMPainter.setHoverColor(color);
-  }
-
-  clearAll() {
-    store.clearAll();
   }
 
   remove(snippetID) {
     if (!snippetID) return;
 
     const snippets = document.querySelectorAll(
-      `${this._options.snippetTagName}[data-highlight-id='${snippetID}']`
+      `${this.options.snippetTagName}[data-highlight-id='${snippetID}']`
     );
 
     if (snippets.length === 0) {
@@ -213,6 +206,23 @@ class Highlighter extends EventEmitter {
 
     store.remove(snippetID);
     this.emit(Events.REMOVED, { snippetID });
+  }
+
+  clearAll() {
+    const removedIds = new Set();
+
+    const allSnippets = document.querySelectorAll(
+      `${this.options.snippetTagName}`
+    );
+
+    // remove all unique snippetIDs
+    allSnippets.forEach(snippet => {
+      const id = snippet.dataset.highlightId;
+      if (!removedIds.has(id)) {
+        this.remove(id);
+        removedIds.add(id);
+      }
+    });
   }
 }
 
