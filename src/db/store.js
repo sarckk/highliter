@@ -26,6 +26,17 @@ function getAll() {
   return parsedHighlights;
 }
 
+function get(id) {
+  const records = getAll();
+  const matchedRecords = records.filter(r => r.id === id);
+
+  if (matchedRecords.length === 0) {
+    return null;
+  }
+
+  return matchedRecords[0];
+}
+
 function save(highlight) {
   let highlights = getAll();
   if (!highlights) {
@@ -49,4 +60,4 @@ function remove(id) {
   setAll(highlights.filter(hl => hl.id !== id));
 }
 
-export { setAll, clearAll, getAll, save, remove };
+export { setAll, clearAll, get, getAll, save, remove };

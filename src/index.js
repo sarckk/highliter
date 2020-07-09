@@ -6,12 +6,10 @@ import { prepareHighlightSnippet } from './component/HighlightSnippet';
 import { prepareMenu } from './component/HighlightMenu';
 import * as store from './db/store';
 import DOMPainter from './dompainter';
-import {
-  DEFAULT_HIGHLIGHT_COLOR,
-  DEFAULT_HIGHLIGHT_HOVER_COLOR
-} from './util/constants';
+import { generateConfig } from './util/constants';
 import { Events } from './util/events';
 import EventEmitter from './util/emitter';
+import { isHighlightSnippet } from './util/dom';
 import { isSelectionBackwards, cleanRange, serialize } from './util/selection';
 
 class Highlighter extends EventEmitter {
@@ -21,18 +19,13 @@ class Highlighter extends EventEmitter {
 
   constructor(config = {}) {
     super();
-    prepareHighlightSnippet();
-    this.menu = prepareMenu();
-    this.currentSelection = null;
-    this.DOMPainter = new DOMPainter(this.highlightColor, this.hoverColor);
-    this._generateDefaultConfig(config);
-  }
-
-  _generateDefaultConfig(config) {
-    this.highlightColor = this.originHlColor =
-      config.highlightColor || DEFAULT_HIGHLIGHT_COLOR;
-    this.hoverColor = this.originHoverColor =
-      config.hoverColor || DEFAULT_HIGHLIGHT_HOVER_COLOR;
+    this._menu = prepareMenu();
+    this._currentSelection = null;
+    this._options = generateConfig(config);
+    this._currentHighlightColor = this._options.originalHighlightColor;
+    this._currentHoverColor = this._options.originalHoverColor;
+    this.DOMPainter = new DOMPainter(this._options);
+    prepareHighlightSnippet(this._options);
   }
 
   init = () => {
@@ -45,12 +38,13 @@ class Highlighter extends EventEmitter {
 
     if (highlights) {
       highlights.forEach(hl => {
+        console.log('restoring hl: ', hl);
         this.DOMPainter.restoreHighlight(hl);
       });
     }
 
-    this.setHighlightColor(this.originHlColor);
-    this.setHoverColor(this.originHoverColor);
+    this.setHighlightColor(this._options.originalHighlightColor);
+    this.setHoverColor(this._options.originalHoverColor);
     this.emit(Events.LOADED, { numLoaded: highlights.length });
   };
 
@@ -66,29 +60,29 @@ class Highlighter extends EventEmitter {
   };
 
   _onWindowResize = () => {
-    if (this._currentRange && this.menu.isVisible()) {
-      this.menu.show(this._currentRange);
+    if (this._currentRange && this._menu.isVisible()) {
+      this._menu.show(this._currentRange);
     }
   };
 
   _onSelection = () => {
     const selection = window.getSelection();
-    // selection obj changes after cleaning so we keep the value in variable first
-    const isBackwards = isSelectionBackwards(selection);
 
     if (selection && selection.rangeCount > 0) {
+      // selection obj changes after cleaning so we keep the value in variable first
+      const isBackwards = isSelectionBackwards(selection);
       const range = selection.getRangeAt(0);
       if (range.collapsed) {
-        if (this.menu.isVisible()) {
-          this.menu.hide();
+        if (this._menu.isVisible()) {
+          this._menu.hide();
         }
         return;
       }
 
       const cleanedRange = cleanRange(range);
       if (!cleanedRange) {
-        if (this.menu.isVisible()) {
-          this.menu.hide();
+        if (this._menu.isVisible()) {
+          this._menu.hide();
         }
         return;
       }
@@ -100,13 +94,13 @@ class Highlighter extends EventEmitter {
         isSelectionBackwards: isBackwards
       };
 
-      this.menu.show(this._currentRange);
+      this._menu.show(this._currentRange);
     }
   };
 
   _onMouseClick = e => {
     const { target } = e;
-    if (!target.dataset.highlightId) {
+    if (!isHighlightSnippet(target)) {
       if (this._prevClickedSnippetID) {
         this.emit(Events.CLICKED_OUT, {
           snippetID: this._prevClickedSnippetID
@@ -139,8 +133,8 @@ class Highlighter extends EventEmitter {
     const highlightInfo = serialize(
       snippetID,
       this._currentRange.range,
-      this.highlightColor,
-      this.hoverColor
+      this._currentHighlightColor,
+      this._currentHoverColor
     );
 
     const hlWraps = this.DOMPainter.highlight(
@@ -159,7 +153,7 @@ class Highlighter extends EventEmitter {
 
   _onSnippetHover = e => {
     const { target } = e;
-    if (!target.dataset.highlightId) {
+    if (!isHighlightSnippet(target)) {
       if (this._currentHoverSnippetID) {
         this.emit(Events.HOVER_OUT, { snippetID: this._currentHoverSnippetID });
         this._currentHoverSnippetID = null;
@@ -181,12 +175,12 @@ class Highlighter extends EventEmitter {
   };
 
   setHighlightColor(color) {
-    this.highlightColor = color;
+    this._currentHighlightColor = color;
     this.DOMPainter.setHighlightColor(color);
   }
 
   setHoverColor(color) {
-    this.hoverColor = color;
+    this._currentHoverColor = color;
     this.DOMPainter.setHoverColor(color);
   }
 
@@ -198,7 +192,7 @@ class Highlighter extends EventEmitter {
     if (!snippetID) return;
 
     const snippets = document.querySelectorAll(
-      `.highlight-snippet[data-highlight-id='${snippetID}']`
+      `${this._options.snippetTagName}[data-highlight-id='${snippetID}']`
     );
 
     if (snippets.length === 0) {
@@ -207,7 +201,12 @@ class Highlighter extends EventEmitter {
 
     snippets.forEach(snippet => {
       const parent = snippet.parentElement;
-      parent.insertBefore(snippet.firstChild, snippet);
+
+      // convert to pure array since changes to DOM by insertBefore will cause
+      // not all childNode in childNodes to be iterated over
+      Array.from(snippet.childNodes).forEach(child => {
+        parent.insertBefore(child, snippet);
+      });
       parent.removeChild(snippet);
       parent.normalize();
     });

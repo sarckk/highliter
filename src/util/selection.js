@@ -1,5 +1,4 @@
 import {
-  isEmptyString,
   getClosestNextTextNode,
   getClosestPrevTextNode,
   getDOMData
@@ -25,6 +24,10 @@ function getDocumentSelection() {
   return selection;
 }
 */
+
+function isEmptyString(str) {
+  return str.match(/^\s*$/);
+}
 
 function isSelectionBackwards(selection) {
   const testRange = new Range();
@@ -159,6 +162,10 @@ function serialize(id, range, highlightColor, hoverColor) {
     hoverColor
   };
 }
+
+/*
+ 1) when you save, save it relative to the first parent which is not a highlight snippet
+*/
 
 export {
   isSelectionBackwards,

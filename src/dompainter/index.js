@@ -4,13 +4,12 @@ import {
   getElemByTag,
   absToRelativeOffset
 } from '../util/dom';
-import { initDefaultSnippetStyles } from './styles';
 
 export default class DOMPainter {
-  constructor(highlightColor, hoverColor) {
-    this.highlightColor = highlightColor;
-    this.hoverColor = hoverColor;
-    initDefaultSnippetStyles();
+  constructor(options) {
+    this.highlightColor = options.originalHighlightColor;
+    this.hoverColor = options.originalHoverColor;
+    this.snippetTagName = options.snippetTagName;
   }
 
   setHighlightColor(color) {
@@ -22,7 +21,7 @@ export default class DOMPainter {
   }
 
   highlight(id, range) {
-    const HighlightSnippet = window.customElements.get('highlight-snippet');
+    const HighlightSnippet = window.customElements.get(this.snippetTagName);
     const commonEnclosingElement = getCommonEnclosingElement(range);
     const highlightRanges = getHighlightRanges(range, commonEnclosingElement);
 

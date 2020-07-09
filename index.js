@@ -1,26 +1,6 @@
 /* eslint-disable no-unused-vars */
 import Highlighter from './src/index';
 
-function getSnippetsByDataID(id) {
-  return document.querySelectorAll(
-    `.highlight-snippet[data-highlight-id='${id}']`
-  );
-}
-
-function addClassByDataID(id, className) {
-  const snippets = getSnippetsByDataID(id);
-  snippets.forEach(el => {
-    el.classList.add(className);
-  });
-}
-
-function removeClassByDataID(id, className) {
-  const snippets = getSnippetsByDataID(id);
-  snippets.forEach(el => {
-    el.classList.remove(className);
-  });
-}
-
 function getRealPos(el) {
   let _el = el;
   let left = 0;
@@ -49,30 +29,71 @@ function setPromptAt(el) {
   delPrompt.dataset.id = el.dataset.highlightId;
 }
 
-const HIGHLIGHT_COLOR = '#FBFF75';
-const HOVER_COLOR = '#F4F93A';
+const DEFAULT_HIGHLIGHT_COLOR = '#FBFF75';
+const DEFAULT_HOVER_COLOR = '#F9D186';
+const SNIPPET_TAGNAME = 'custom-elem';
+
+function getSnippetsByDataID(id) {
+  return document.querySelectorAll(
+    `${SNIPPET_TAGNAME}[data-highlight-id='${id}']`
+  );
+}
+
+function addClassByDataID(id, className) {
+  const snippets = getSnippetsByDataID(id);
+  snippets.forEach(el => {
+    el.classList.add(className);
+    const nestedSnippets = el.querySelectorAll(SNIPPET_TAGNAME);
+    nestedSnippets.forEach(s => {
+      s.setCSSVars(el.highlightColor, el.hoverColor);
+      s.classList.add(className);
+    });
+  });
+}
+
+function removeClassByDataID(id, className) {
+  const snippets = getSnippetsByDataID(id);
+  snippets.forEach(el => {
+    el.classList.remove(className);
+    const nestedSnippets = el.querySelectorAll(SNIPPET_TAGNAME);
+    nestedSnippets.forEach(s => {
+      s.setCSSVars(s.highlightColor, s.hoverColor); // return to original colors
+      s.classList.remove(className);
+    });
+  });
+}
 
 const highlighter = new Highlighter({
-  highlightColor: HIGHLIGHT_COLOR,
-  hoverColor: HOVER_COLOR
+  highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+  hoverColor: DEFAULT_HOVER_COLOR,
+  snippetTagName: SNIPPET_TAGNAME
 });
 highlighter.init();
 
+let clicked = false;
+
 highlighter
   .on(Highlighter.EVENTS.HOVER, ({ snippetID }) => {
-    addClassByDataID(snippetID, 'highlight-hover');
+    if (!clicked) {
+      addClassByDataID(snippetID, 'hl-hover');
+    }
   })
   .on(Highlighter.EVENTS.HOVER_OUT, ({ snippetID }) => {
-    removeClassByDataID(snippetID, 'highlight-hover');
+    if (!clicked) {
+      removeClassByDataID(snippetID, 'hl-hover');
+    }
   })
   .on(Highlighter.EVENTS.CLICKED_OUT, ({ snippetID }) => {
-    removeClassByDataID(snippetID, 'highlight-clicked');
+    removeClassByDataID(snippetID, 'hl-clicked');
+    removeClassByDataID(snippetID, 'hl-hover');
+    clicked = false;
   })
   .on(Highlighter.EVENTS.CLICKED, ({ snippetID }) => {
     const snippets = getSnippetsByDataID(snippetID);
     const firstSnippet = snippets[0];
-    addClassByDataID(snippetID, 'highlight-clicked');
+    addClassByDataID(snippetID, 'hl-clicked');
     setPromptAt(firstSnippet);
+    clicked = true;
   })
   .on(Highlighter.EVENTS.REMOVED, ({ snippetID }) => {
     console.log(`Removed all highlights with id ${snippetID}`);
@@ -87,7 +108,7 @@ document.addEventListener('click', e => {
     removeClassByDataID(id, 'highlight-hover');
     highlighter.remove(id);
     delPrompt.classList.add('hidden');
-  } else if (!target.classList.contains('highlight-snippet')) {
+  } else if (!target.dataset.highlightId) {
     delPrompt.classList.add('hidden');
   }
 });
@@ -116,10 +137,10 @@ hoverColorSelector.addEventListener('change', e => {
 
 // set defaults
 hlColorSelector.dataset.jscolor = `{
-  value: '${HIGHLIGHT_COLOR}'
+  value: '${DEFAULT_HIGHLIGHT_COLOR}'
 }`;
 hoverColorSelector.dataset.jscolor = `{
-  value: '${HOVER_COLOR}'
+  value: '${DEFAULT_HOVER_COLOR}'
 }`;
 
 // eslint-disable-next-line no-undef

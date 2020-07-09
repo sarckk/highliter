@@ -9,6 +9,10 @@ function isEmptyString(str) {
   return str.match(/^\s*$/);
 }
 
+function isHighlightSnippet(elem) {
+  return elem.dataset && elem.dataset.highlightId;
+}
+
 /**
  * based on mozilla documentation: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Whitespace
  */
@@ -93,7 +97,6 @@ function getCommonEnclosingElement(range) {
   let parent = range.commonAncestorContainer;
 
   if (parent.nodeType !== NODE_TYPE_ELEMENT) {
-    // not element so we set it to its parent elem
     parent = parent.parentElement;
   }
 
@@ -112,11 +115,21 @@ function getNodeOffset(node) {
 
 function getDOMData(container, offset) {
   // container is guaranteed to be a text node (e.g. p.firstChild)
-  const parent = container.parentElement;
-  const parentTag = parent.tagName.toLowerCase();
+  let nonSnippetParent = container.parentElement;
+  let offsetFromNonSnippetParent = 0;
+  // let inHighlight = false; // true if isHighlightSnippet(container.parentelement) is true
+
+  while (isHighlightSnippet(nonSnippetParent)) {
+    // inHighlight = true;
+    offsetFromNonSnippetParent += getNodeOffset(nonSnippetParent);
+    nonSnippetParent = nonSnippetParent.parentElement;
+  }
+
+  const parentTag = nonSnippetParent.tagName.toLowerCase();
   const listOfParentTags = document.querySelectorAll(parentTag);
-  const parentOffset = Array.from(listOfParentTags).indexOf(parent);
-  const absOffset = getNodeOffset(container) + offset;
+  const parentOffset = Array.from(listOfParentTags).indexOf(nonSnippetParent);
+  const absOffset =
+    offsetFromNonSnippetParent + getNodeOffset(container) + offset;
 
   return {
     parentTag,
@@ -137,12 +150,15 @@ function absToRelativeOffset(parent, absOffset, isStartOffset = false) {
 
   while (stack.length !== 0) {
     currentNode = stack.pop();
+    console.log('currentNode:', currentNode);
 
     if (currentNode.nodeType !== NODE_TYPE_TEXT) {
       for (let i = currentNode.childNodes.length - 1; i >= 0; i--) {
         stack.push(currentNode.childNodes[i]);
       }
     } else {
+      console.log('currentNode length: ', currentNode.length);
+
       nextOffset = currentOffset + currentNode.length;
 
       if (isStartOffset) {
@@ -169,6 +185,7 @@ function absToRelativeOffset(parent, absOffset, isStartOffset = false) {
 
 export {
   isEmptyString,
+  isHighlightSnippet,
   getClosestNextTextNode,
   getClosestPrevTextNode,
   getCommonEnclosingElement,
