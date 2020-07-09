@@ -150,15 +150,12 @@ function absToRelativeOffset(parent, absOffset, isStartOffset = false) {
 
   while (stack.length !== 0) {
     currentNode = stack.pop();
-    console.log('currentNode:', currentNode);
 
     if (currentNode.nodeType !== NODE_TYPE_TEXT) {
       for (let i = currentNode.childNodes.length - 1; i >= 0; i--) {
         stack.push(currentNode.childNodes[i]);
       }
     } else {
-      console.log('currentNode length: ', currentNode.length);
-
       nextOffset = currentOffset + currentNode.length;
 
       if (isStartOffset) {

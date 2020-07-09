@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
 /* eslint-disable no-multi-assign */
-import { v4 as uuidv4 } from 'uuid';
 import { prepareHighlightSnippet } from './component/HighlightSnippet';
 import { prepareMenu } from './component/HighlightMenu';
 import * as store from './db/store';
@@ -11,6 +10,7 @@ import { Events } from './util/events';
 import EventEmitter from './util/emitter';
 import { isHighlightSnippet } from './util/dom';
 import { isSelectionBackwards, cleanRange, serialize } from './util/selection';
+import { uuidv4 } from './util/uuid';
 
 class Highlighter extends EventEmitter {
   static get EVENTS() {
