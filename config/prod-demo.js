@@ -4,7 +4,11 @@ const baseConfig = require('./base.demo');
 
 const config = {
   mode: 'production',
-  plugins: [new CleanWebpackPlugin()],
+  plugins: [
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: ['**/*', '!.git']
+    })
+  ],
   output: {
     filename: 'index.[contenthash].js'
   }

@@ -1,6 +1,6 @@
 # highliter
 
-### highliter is a <i style="color: #6B6FF9">lite</i> JS highlighting library with zero dependencies 🎊
+### highliter is a <i style="color: #6B6FF9">lite</i> JS highlighting library with zero dependencies ⚡
 
 ---
 

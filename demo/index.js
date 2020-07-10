@@ -78,7 +78,7 @@ const highliter = new Highliter({
   highlightColor: DEFAULT_HIGHLIGHT_COLOR,
   hoverColor: DEFAULT_HOVER_COLOR,
   customTagName: CUSTOM_TAGNAME,
-  exclude: ['li']
+  exclude: []
 });
 
 let clicked = false;
