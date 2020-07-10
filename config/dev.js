@@ -5,7 +5,7 @@ const { rootDir } = require('./constants');
 
 const config = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   devServer: {
     contentBase: path.resolve(rootDir, 'demo/dist'),
     inline: true,

@@ -4,7 +4,7 @@ export const NODE_TYPE_ELEMENT = 1;
 
 const DEFAULT_HIGHLIGHT_COLOR = '#FAFF60';
 const DEFAULT_HIGHLIGHT_HOVER_COLOR = '#F1F73B';
-const DEFAULT_SNIPPET_TAGNAME = 'highlight-snippet';
+const DEFAULT_CUSTOM_TAGNAME = 'highlight-snippet';
 const DEFAULT_EXCLUDED_ELEMENTS = ['SCRIPT', 'STYLE', 'NOSCRIPT'];
 
 export function generateConfig(userConfig) {
@@ -23,7 +23,7 @@ export function generateConfig(userConfig) {
     originalHighlightColor:
       userConfig.highlightColor || DEFAULT_HIGHLIGHT_COLOR,
     originalHoverColor: userConfig.hoverColor || DEFAULT_HIGHLIGHT_HOVER_COLOR,
-    snippetTagName: userConfig.snippetTagName || DEFAULT_SNIPPET_TAGNAME,
+    customTagName: userConfig.customTagName || DEFAULT_CUSTOM_TAGNAME,
     exclude: [...elementsToExclude, ...DEFAULT_EXCLUDED_ELEMENTS]
   };
 

@@ -20,5 +20,5 @@ class HighlightSnippet extends HTMLElement {
 }
 
 export function prepareHighlightSnippet(options) {
-  customElements.define(options.snippetTagName, HighlightSnippet);
+  customElements.define(options.customTagName, HighlightSnippet);
 }

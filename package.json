@@ -1,11 +1,11 @@
 {
-  "name": "underscore",
+  "name": "highliter",
   "version": "0.0.1",
   "description": "📝 Lightweight JS highlighter",
-  "homepage": "https://sarckk.github.io/underscore",
+  "homepage": "https://sarckk.github.io/highliter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sarckk/underscore"
+    "url": "https://github.com/sarckk/highliter"
   },
   "scripts": {
     "start": "webpack-dev-server -d --env=dev --open",
@@ -49,7 +49,7 @@
     "webpack-merge": "^5.0.9"
   },
   "bugs": {
-    "url": "https://github.com/sarckk/underscore/issues"
+    "url": "https://github.com/sarckk/highliter/issues"
   },
-  "main": "webpack.config.js"
+  "main": "dist/highliter.min.js"
 }

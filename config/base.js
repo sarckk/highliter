@@ -5,7 +5,7 @@ const config = {
   entry: [path.resolve(rootDir, 'src/index.js')],
   output: {
     path: path.resolve(rootDir, 'dist'),
-    library: 'underscore',
+    library: 'highliter',
     libraryTarget: 'umd',
     libraryExport: 'default'
   },

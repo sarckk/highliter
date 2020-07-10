@@ -9,7 +9,7 @@ export default class DOMPainter {
   constructor(options) {
     this.highlightColor = options.originalHighlightColor;
     this.hoverColor = options.originalHoverColor;
-    this.snippetTagName = options.snippetTagName;
+    this.customTagName = options.customTagName;
     this.exclude = options.exclude;
   }
 
@@ -22,7 +22,7 @@ export default class DOMPainter {
   }
 
   highlight(id, range) {
-    const HighlightSnippet = window.customElements.get(this.snippetTagName);
+    const HighlightSnippet = window.customElements.get(this.customTagName);
     const commonEnclosingElement = getCommonEnclosingElement(range);
     const highlightRanges = getHighlightRanges(
       range,

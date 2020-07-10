@@ -8,14 +8,11 @@ import { isHighlightSnippet } from './util/dom';
 import { isSelectionBackwards, cleanRange, serialize } from './util/selection';
 import { uuidv4 } from './util/uuid';
 
-class Highlighter extends EventEmitter {
-  static get EVENTS() {
-    return Events;
-  }
+class Highliter extends EventEmitter {
+  static Events = Events;
 
   constructor(config = {}) {
     super();
-    this.currentSelection = null;
     this.options = generateConfig(config);
     this.currentHighlightColor = this.options.originalHighlightColor;
     this.currentHoverColor = this.options.originalHoverColor;
@@ -30,6 +27,7 @@ class Highlighter extends EventEmitter {
 
   pause = () => {
     document.removeEventListener(Moves.MOUSE_UP, this._onSelection);
+    document.removeEventListener(Moves.HIGHLIGHT, this._createHighlight);
   };
 
   terminate = () => {
@@ -37,7 +35,6 @@ class Highlighter extends EventEmitter {
     document.removeEventListener(Moves.CLICK, this._onMouseClick);
     document.removeEventListener(Moves.HIGHLIGHT, this._createHighlight);
     document.removeEventListener(Moves.HOVER, this._onSnippetHover);
-    window.removeEventListener(Moves.RESIZE, this._onWindowResize);
     this.clearAll();
   };
 
@@ -100,44 +97,44 @@ class Highlighter extends EventEmitter {
   _onMouseClick = e => {
     const { target } = e;
     if (!isHighlightSnippet(target)) {
-      if (this.prevClickedSnippetID) {
+      if (this.prevClickedHighlightID) {
         this.emit(Events.CLICKED_OUT, {
-          snippetID: this.prevClickedSnippetID
+          highlightID: this.prevClickedHighlightID
         });
-        this.prevClickedSnippetID = null;
+        this.prevClickedHighlightID = null;
       }
       return;
     }
 
     const id = target.dataset.highlightId;
 
-    if (this.prevClickedSnippetID === id) {
+    if (this.prevClickedHighlightID === id) {
       return;
     }
 
-    if (this.prevClickedSnippetID) {
+    if (this.prevClickedHighlightID) {
       this.emit(Events.CLICKED_OUT, {
-        snippetID: this.prevClickedSnippetID
+        highlightID: this.prevClickedHighlightID
       });
     }
 
-    this.emit(Events.CLICKED, { snippetID: id });
-    this.prevClickedSnippetID = id;
+    this.emit(Events.CLICKED, { highlightID: id });
+    this.prevClickedHighlightID = id;
   };
 
   _createHighlight = () => {
-    const snippetID = uuidv4();
+    const highlightID = uuidv4();
 
     // serialize info first before DOM mutation by DOMPainter causes this.currentRange.range to change
-    const highlightInfo = serialize(
-      snippetID,
+    const highlight = serialize(
+      highlightID,
       this.currentRange.range,
       this.currentHighlightColor,
       this.currentHoverColor
     );
 
     const hlWraps = this._DOMPainter.highlight(
-      snippetID,
+      highlightID,
       this.currentRange.range
     );
 
@@ -146,30 +143,34 @@ class Highlighter extends EventEmitter {
       return;
     }
 
-    this.emit(Events.CREATED, { highlightInfo });
+    this.emit(Events.CREATED, { highlight });
   };
 
   _onSnippetHover = e => {
     const { target } = e;
     if (!isHighlightSnippet(target)) {
-      if (this.currentHoverSnippetID) {
-        this.emit(Events.HOVER_OUT, { snippetID: this.currentHoverSnippetID });
-        this.currentHoverSnippetID = null;
+      if (this.currentHoverHighlightID) {
+        this.emit(Events.HOVER_OUT, {
+          highlightID: this.currentHoverHighlightID
+        });
+        this.currentHoverHighlightID = null;
       }
       return;
     }
     const id = target.dataset.highlightId;
 
-    if (this.currentHoverSnippetID === id) {
+    if (this.currentHoverHighlightID === id) {
       return;
     }
 
-    if (this.currentHoverSnippetID) {
-      this.emit(Events.HOVER_OUT, { snippetID: this.currentHoverSnippetID });
+    if (this.currentHoverHighlightID) {
+      this.emit(Events.HOVER_OUT, {
+        highlightID: this.currentHoverHighlightID
+      });
     }
 
-    this.emit(Events.HOVER, { snippetID: id });
-    this.currentHoverSnippetID = id;
+    this.emit(Events.HOVER, { highlightID: id });
+    this.currentHoverHighlightID = id;
   };
 
   setHighlightColor = color => {
@@ -182,11 +183,11 @@ class Highlighter extends EventEmitter {
     this._DOMPainter.setHoverColor(color);
   };
 
-  remove = snippetID => {
-    if (!snippetID) return;
+  remove = highlightID => {
+    if (!highlightID) return;
 
     const snippets = document.querySelectorAll(
-      `${this.options.snippetTagName}[data-highlight-id='${snippetID}']`
+      `${this.options.customTagName}[data-highlight-id='${highlightID}']`
     );
 
     if (snippets.length === 0) {
@@ -205,17 +206,17 @@ class Highlighter extends EventEmitter {
       parent.normalize();
     });
 
-    this.emit(Events.REMOVED, { snippetID });
+    this.emit(Events.REMOVED, { highlightID });
   };
 
   clearAll = () => {
     const removedIds = new Set();
 
     const allSnippets = document.querySelectorAll(
-      `${this.options.snippetTagName}`
+      `${this.options.customTagName}`
     );
 
-    // remove all unique snippetIDs
+    // remove all unique highlightIDs
     allSnippets.forEach(snippet => {
       const id = snippet.dataset.highlightId;
       if (!removedIds.has(id)) {
@@ -226,4 +227,4 @@ class Highlighter extends EventEmitter {
   };
 }
 
-export default Highlighter;
+export default Highliter;
