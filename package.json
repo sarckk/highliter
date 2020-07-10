@@ -1,14 +1,26 @@
 {
-  "name": "memoize",
-  "version": "1.0.0",
-  "description": "",
-  "main": "background.js",
-  "scripts": {
-    "build": "webpack",
-    "test": "jest"
+  "name": "underscore",
+  "version": "0.0.1",
+  "description": "📝 Lightweight JS highlighter",
+  "homepage": "https://sarckk.github.io/underscore",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sarckk/underscore"
   },
-  "keywords": [],
-  "author": "",
+  "scripts": {
+    "start": "webpack-dev-server -d --env=dev --open",
+    "build": "webpack -p --env=prod",
+    "watch": "webpack -p --env=prod --watch",
+    "build-demo": "webpack -p --env=prod-demo"
+  },
+  "keywords": [
+    "highlight",
+    "javascript",
+    "selection",
+    "range",
+    "no-dependencies"
+  ],
+  "author": "sarckk <https://github.com/sarckk>",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
@@ -19,6 +31,7 @@
     "babel-loader": "^8.1.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0",
+    "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.6.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
@@ -27,17 +40,16 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
     "extract-loader": "^5.1.0",
-    "file-loader": "^6.0.0",
-    "jest": "^26.1.0",
-    "minimist": "^1.2.5",
-    "mocha": "^7.1.1",
+    "html-webpack-plugin": "^4.3.0",
     "prettier": "^1.19.1",
     "style-loader": "^1.2.1",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "webpack-merge": "^5.0.9"
   },
-  "resolutions": {
-    "minimist": "^1.2.5"
-  }
+  "bugs": {
+    "url": "https://github.com/sarckk/underscore/issues"
+  },
+  "main": "webpack.config.js"
 }
