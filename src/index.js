@@ -4,6 +4,7 @@ import * as store from './db/store';
 import DOMPainter from './dompainter';
 import { generateConfig } from './util/constants';
 import { Events } from './util/events';
+import { Moves } from './util/moves';
 import EventEmitter from './util/emitter';
 import { isHighlightSnippet } from './util/dom';
 import { isSelectionBackwards, cleanRange, serialize } from './util/selection';
@@ -23,11 +24,25 @@ class Highlighter extends EventEmitter {
     this.currentHoverColor = this.options.originalHoverColor;
     this.DOMPainter = new DOMPainter(this.options);
     prepareHighlightSnippet(this.options);
+    this._loadData();
+    this.start();
   }
 
-  init = () => {
-    this._loadData();
+  start = () => {
     this._initDocumentListeners();
+  };
+
+  pause = () => {
+    document.removeEventListener(Moves.MOUSE_UP, this._onSelection);
+  };
+
+  terminate = () => {
+    document.removeEventListener(Moves.MOUSE_UP, this._onSelection);
+    document.removeEventListener(Moves.CLICK, this._onMouseClick);
+    document.removeEventListener(Moves.HIGHLIGHT, this._createHighlight);
+    document.removeEventListener(Moves.HOVER, this._onSnippetHover);
+    window.removeEventListener(Moves.RESIZE, this._onWindowResize);
+    this.clearAll();
   };
 
   _loadData = () => {
@@ -35,7 +50,7 @@ class Highlighter extends EventEmitter {
 
     if (highlights) {
       highlights.forEach(hl => {
-        console.log('restoring hl: ', hl);
+        console.log('restoring highlight: ', hl);
         this.DOMPainter.restoreHighlight(hl);
       });
     }
@@ -46,14 +61,14 @@ class Highlighter extends EventEmitter {
   };
 
   _initDocumentListeners = () => {
-    document.body.addEventListener('mousedown', () =>
+    document.addEventListener(Moves.MOUSE_DOWN, () =>
       window.getSelection().removeAllRanges()
     );
-    document.body.addEventListener('mouseup', this._onSelection);
-    document.body.addEventListener('click', this._onMouseClick);
-    document.body.addEventListener('highlight', this._createHighlight);
-    document.body.addEventListener('mouseover', this._onSnippetHover);
-    window.addEventListener('resize', this._onWindowResize);
+    document.addEventListener(Moves.MOUSE_UP, this._onSelection);
+    document.addEventListener(Moves.HOVER, this._onSnippetHover);
+    document.addEventListener(Moves.CLICK, this._onMouseClick);
+    document.addEventListener(Moves.HIGHLIGHT, this._createHighlight);
+    window.addEventListener(Moves.RESIZE, this._onWindowResize);
   };
 
   _onWindowResize = () => {
@@ -171,17 +186,17 @@ class Highlighter extends EventEmitter {
     this.currentHoverSnippetID = id;
   };
 
-  setHighlightColor(color) {
+  setHighlightColor = color => {
     this.currentHighlightColor = color;
     this.DOMPainter.setHighlightColor(color);
-  }
+  };
 
-  setHoverColor(color) {
+  setHoverColor = color => {
     this.currentHoverColor = color;
     this.DOMPainter.setHoverColor(color);
-  }
+  };
 
-  remove(snippetID) {
+  remove = snippetID => {
     if (!snippetID) return;
 
     const snippets = document.querySelectorAll(
@@ -206,9 +221,9 @@ class Highlighter extends EventEmitter {
 
     store.remove(snippetID);
     this.emit(Events.REMOVED, { snippetID });
-  }
+  };
 
-  clearAll() {
+  clearAll = () => {
     const removedIds = new Set();
 
     const allSnippets = document.querySelectorAll(
@@ -223,7 +238,7 @@ class Highlighter extends EventEmitter {
         removedIds.add(id);
       }
     });
-  }
+  };
 }
 
 export default Highlighter;

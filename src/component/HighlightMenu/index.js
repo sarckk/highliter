@@ -1,3 +1,5 @@
+import { Moves } from '../../util/moves';
+
 class HighlightMenu extends HTMLElement {
   constructor() {
     super();
@@ -22,7 +24,7 @@ class HighlightMenu extends HTMLElement {
 
   _dispatchClick() {
     this.dispatchEvent(
-      new CustomEvent('highlight', {
+      new CustomEvent(Moves.HIGHLIGHT, {
         bubbles: true,
         composed: true
       })
