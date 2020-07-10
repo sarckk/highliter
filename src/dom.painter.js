@@ -1,15 +1,16 @@
-import { getHighlightRanges } from '../util/selection';
+import { getHighlightRanges, isCompleteSelectionInfo } from './util/selection';
 import {
   getCommonEnclosingElement,
   getElemByTag,
   absToRelativeOffset
-} from '../util/dom';
+} from './util/dom';
 
 export default class DOMPainter {
   constructor(options) {
     this.highlightColor = options.originalHighlightColor;
     this.hoverColor = options.originalHoverColor;
     this.snippetTagName = options.snippetTagName;
+    this.exclude = options.exclude;
   }
 
   setHighlightColor(color) {
@@ -23,7 +24,11 @@ export default class DOMPainter {
   highlight(id, range) {
     const HighlightSnippet = window.customElements.get(this.snippetTagName);
     const commonEnclosingElement = getCommonEnclosingElement(range);
-    const highlightRanges = getHighlightRanges(range, commonEnclosingElement);
+    const highlightRanges = getHighlightRanges(
+      range,
+      commonEnclosingElement,
+      this.exclude
+    );
 
     return highlightRanges.map(r => {
       const snippet = new HighlightSnippet(
@@ -38,7 +43,12 @@ export default class DOMPainter {
   }
 
   restoreHighlight(highlightInfo) {
+    if (!isCompleteSelectionInfo(highlightInfo)) {
+      throw new Error('Malformed highlight data');
+    }
+
     const range = document.createRange();
+
     const {
       id,
       startData,
@@ -54,6 +64,10 @@ export default class DOMPainter {
 
     const endParent = getElemByTag(endData.parentTag, endData.parentOffset);
 
+    if (!startParent || !endParent) {
+      throw new Error('Invalid parentTag or parentOffset');
+    }
+
     const { node: startContainer, offset: startOffset } = absToRelativeOffset(
       startParent,
       startData.absOffset,
@@ -66,6 +80,10 @@ export default class DOMPainter {
 
     range.setStart(startContainer, startOffset);
     range.setEnd(endContainer, endOffset);
+
+    if (range.collapsed) {
+      throw new Error('Invalid range described by highlight data');
+    }
 
     this.setHighlightColor(highlightColor);
     this.setHoverColor(hoverColor);

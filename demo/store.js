@@ -2,7 +2,7 @@ function setAll(store) {
   localStorage.setItem('highlights', JSON.stringify(store));
 }
 
-function clearAll() {
+function removeAll() {
   setAll([]);
 }
 
@@ -19,7 +19,7 @@ function getAll() {
     parsedHighlights = JSON.parse(highlights);
   } catch (err) {
     console.error('Could not get highlights');
-    clearAll();
+    removeAll();
     return [];
   }
 
@@ -34,7 +34,7 @@ function get(id) {
     return null;
   }
 
-  return matchedRecords[0];
+  return matchedRecords;
 }
 
 function save(highlight) {
@@ -60,4 +60,4 @@ function remove(id) {
   setAll(highlights.filter(hl => hl.id !== id));
 }
 
-export { setAll, clearAll, get, getAll, save, remove };
+export { setAll, removeAll, get, getAll, save, remove };

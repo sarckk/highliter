@@ -4,97 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>_underscore demo</title>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.2.3/jscolor.js"></script>
-    <script defer src="./dist/bundle.js"></script>
-    <style>
-      body {
-        padding: 1% 27%;
-        font-family: 'Lucida Grande';
-      }
-
-      .color-panel {
-        position: fixed;
-        top: 30px;
-        left: 12px;
-        padding: 8px 15px;
-        background-color: rgb(240, 240, 240, 0.7);
-        border: 1px dashed rgb(54, 54, 54);
-        border-radius: 4px;
-      }
-
-      .panel-row{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-
-      .panel-row:first-child{
-        margin-bottom: 10px;
-      }
-
-      .c-text{
-        color: #333333;
-        font-size: 0.8rem;
-        margin-right: 5px;
-        flex: 20%;
-      }
-
-      .del-prompt{
-        display: block;
-        position: absolute; 
-        color: #F8F8F5;
-        cursor: pointer;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        background-color: #252525;
-        opacity: 0.9;
-      }
-
-      .del-prompt:hover{
-        color: rgb(197, 197, 197);
-      }
-
-      .del-prompt:after{
-        top: 100%;
-        left: 50%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-        border-color: rgba(136, 183, 213, 0);
-        border-top-color: #464644;
-        border-width: 5px;
-        margin-left: -5px;
-      }
-
-      .hidden{
-        display: none;
-      }
-
-      .jscolor{
-        width: 100px;
-      }
-
-      custom-elem{
-          transition: all 0.2s ease;
-          background-color: var(--snippet-highlight-color);
-          cursor: pointer;
-      } 
-
-      .hl-hover{
-          background-color: var(--snippet-hover-color);
-      } 
-
-      .hl-clicked{
-          background-color: var(--snippet-hover-color);
-      } 
-
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.2.3/jscolor.js"></script>
   </head>
   <body>
+    <main>
     <h1>_underscore demo</h1>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed congue
@@ -147,7 +60,7 @@
           pharetra. Integer et cursus ante. Nam efficitur risus id elit finibus,
           id consectetur libero facilisis.
         </p>
-        <button id="clear_hl">Clear all highlights</button>
+      </main>
       <div class="color-panel">
         <div class="panel-row">
           <div class="c-text">Highlight color </div>
@@ -156,6 +69,14 @@
         <div class="panel-row">
           <div class="c-text">Hover color </div>
           <input data-jscolor="" id="hover-color" >
+        </div>
+        <div class="panel-row">
+          <button id="clear_hl">Clear all highlights</button>
+          <button id="start_hl">Start highlighter</button>
+        </div>
+        <div class="panel-row">
+          <button id="pause_hl">Pause highlighter</button>
+          <button id="terminate_hl">Terminate highlighter</button>
         </div>
       </div>
     </div>

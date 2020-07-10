@@ -1,19 +1,31 @@
 export const NODE_TYPE_COMMENT = 8;
 export const NODE_TYPE_TEXT = 3;
 export const NODE_TYPE_ELEMENT = 1;
-export const DEFAULT_HIGHLIGHT_COLOR = '#FAFF60';
-export const DEFAULT_HIGHLIGHT_HOVER_COLOR = '#F1F73B';
-export const DEFAULT_SNIPPET_TAGNAME = 'highlight-snippet';
 
-export function generateConfig(userCfg) {
-  const defaultCfg = {
-    originalHighlightColor: userCfg.highlightColor || DEFAULT_HIGHLIGHT_COLOR,
-    originalHoverColor: userCfg.hoverColor || DEFAULT_HIGHLIGHT_HOVER_COLOR,
-    snippetTagName: userCfg.snippetTagName || DEFAULT_SNIPPET_TAGNAME
+const DEFAULT_HIGHLIGHT_COLOR = '#FAFF60';
+const DEFAULT_HIGHLIGHT_HOVER_COLOR = '#F1F73B';
+const DEFAULT_SNIPPET_TAGNAME = 'highlight-snippet';
+const DEFAULT_EXCLUDED_ELEMENTS = ['SCRIPT', 'STYLE', 'NOSCRIPT'];
+
+export function generateConfig(userConfig) {
+  let elementsToExclude = userConfig.exclude;
+  if (!elementsToExclude) {
+    elementsToExclude = [];
+  }
+
+  if (!Array.isArray(elementsToExclude)) {
+    elementsToExclude = [elementsToExclude];
+  }
+
+  elementsToExclude = elementsToExclude.map(e => e.toUpperCase());
+
+  const config = {
+    originalHighlightColor:
+      userConfig.highlightColor || DEFAULT_HIGHLIGHT_COLOR,
+    originalHoverColor: userConfig.hoverColor || DEFAULT_HIGHLIGHT_HOVER_COLOR,
+    snippetTagName: userConfig.snippetTagName || DEFAULT_SNIPPET_TAGNAME,
+    exclude: [...elementsToExclude, ...DEFAULT_EXCLUDED_ELEMENTS]
   };
 
-  return {
-    ...defaultCfg,
-    ...userCfg
-  };
+  return config;
 }

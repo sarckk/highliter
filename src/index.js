@@ -1,7 +1,5 @@
-import { prepareHighlightSnippet } from './component/HighlightSnippet';
-import { prepareMenu } from './component/HighlightMenu';
-import * as store from './db/store';
-import DOMPainter from './dompainter';
+import { prepareHighlightSnippet } from './highlight-snippet';
+import DOMPainter from './dom.painter';
 import { generateConfig } from './util/constants';
 import { Events } from './util/events';
 import { Moves } from './util/moves';
@@ -17,14 +15,12 @@ class Highlighter extends EventEmitter {
 
   constructor(config = {}) {
     super();
-    this.menu = prepareMenu();
     this.currentSelection = null;
     this.options = generateConfig(config);
     this.currentHighlightColor = this.options.originalHighlightColor;
     this.currentHoverColor = this.options.originalHoverColor;
-    this.DOMPainter = new DOMPainter(this.options);
+    this._DOMPainter = new DOMPainter(this.options);
     prepareHighlightSnippet(this.options);
-    this._loadData();
     this.start();
   }
 
@@ -45,20 +41,24 @@ class Highlighter extends EventEmitter {
     this.clearAll();
   };
 
-  _loadData = () => {
-    const highlights = store.getAll();
-
+  restoreHighlights(highlights) {
     if (highlights) {
       highlights.forEach(hl => {
-        console.log('restoring highlight: ', hl);
-        this.DOMPainter.restoreHighlight(hl);
+        try {
+          this._DOMPainter.restoreHighlight(hl);
+        } catch (err) {
+          this.emit(Events.ERROR_LOADING, {
+            highlight: hl,
+            error: err.message
+          });
+          return;
+        }
+        this.emit(Events.LOADED, { highlight: hl });
       });
     }
-
     this.setHighlightColor(this.options.originalHighlightColor);
     this.setHoverColor(this.options.originalHoverColor);
-    this.emit(Events.LOADED, { numLoaded: highlights.length });
-  };
+  }
 
   _initDocumentListeners = () => {
     document.addEventListener(Moves.MOUSE_DOWN, () =>
@@ -68,13 +68,6 @@ class Highlighter extends EventEmitter {
     document.addEventListener(Moves.HOVER, this._onSnippetHover);
     document.addEventListener(Moves.CLICK, this._onMouseClick);
     document.addEventListener(Moves.HIGHLIGHT, this._createHighlight);
-    window.addEventListener(Moves.RESIZE, this._onWindowResize);
-  };
-
-  _onWindowResize = () => {
-    if (this.currentRange && this.menu.isVisible()) {
-      this.menu.show(this.currentRange);
-    }
   };
 
   _onSelection = () => {
@@ -85,28 +78,22 @@ class Highlighter extends EventEmitter {
       const isBackwards = isSelectionBackwards(selection);
       const range = selection.getRangeAt(0);
       if (range.collapsed) {
-        if (this.menu.isVisible()) {
-          this.menu.hide();
-        }
+        this.emit(Events.HIDE_MENU);
         return;
       }
 
       const cleanedRange = cleanRange(range);
       if (!cleanedRange) {
-        if (this.menu.isVisible()) {
-          this.menu.hide();
-        }
+        this.emit(Events.HIDE_MENU);
         return;
       }
-
-      console.log('range after cleaning: ', cleanedRange.cloneRange());
 
       this.currentRange = {
         range: cleanedRange,
         isSelectionBackwards: isBackwards
       };
 
-      this.menu.show(this.currentRange);
+      this.emit(Events.SHOW_MENU);
     }
   };
 
@@ -149,17 +136,16 @@ class Highlighter extends EventEmitter {
       this.currentHoverColor
     );
 
-    const hlWraps = this.DOMPainter.highlight(
+    const hlWraps = this._DOMPainter.highlight(
       snippetID,
       this.currentRange.range
     );
+
     if (hlWraps.length === 0) {
       console.error('Invalid highlight selection - no text nodes selected');
       return;
     }
 
-    console.log('Saving the following details: ', highlightInfo);
-    store.save(highlightInfo);
     this.emit(Events.CREATED, { highlightInfo });
   };
 
@@ -188,12 +174,12 @@ class Highlighter extends EventEmitter {
 
   setHighlightColor = color => {
     this.currentHighlightColor = color;
-    this.DOMPainter.setHighlightColor(color);
+    this._DOMPainter.setHighlightColor(color);
   };
 
   setHoverColor = color => {
     this.currentHoverColor = color;
-    this.DOMPainter.setHoverColor(color);
+    this._DOMPainter.setHoverColor(color);
   };
 
   remove = snippetID => {
@@ -219,7 +205,6 @@ class Highlighter extends EventEmitter {
       parent.normalize();
     });
 
-    store.remove(snippetID);
     this.emit(Events.REMOVED, { snippetID });
   };
 

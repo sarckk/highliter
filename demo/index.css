@@ -1,0 +1,107 @@
+body {
+  font-family: 'Lucida Grande';
+}
+
+main {
+  max-width: 600px;
+  margin: 1% auto;
+}
+
+@media screen and (max-width: 992px) {
+  main {
+    padding: 1px 10px;
+  }
+}
+
+.color-panel {
+  position: fixed;
+  top: 30px;
+  left: 12px;
+  padding: 8px 15px;
+  background-color: rgb(240, 240, 240, 0.7);
+  border: 1px dashed rgb(54, 54, 54);
+  border-radius: 4px;
+}
+
+.panel-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.panel-row:last-child {
+  margin-bottom: 0;
+}
+
+.c-text {
+  color: #333333;
+  font-size: 0.8rem;
+  margin-right: 5px;
+  flex: 20%;
+}
+
+.del-prompt {
+  display: block;
+  position: absolute;
+  color: #f8f8f5;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background-color: #252525;
+  opacity: 0.9;
+}
+
+.del-prompt:hover {
+  color: rgb(197, 197, 197);
+}
+
+.del-prompt:after {
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: ' ';
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(136, 183, 213, 0);
+  border-top-color: #464644;
+  border-width: 5px;
+  margin-left: -5px;
+}
+
+.hidden {
+  display: none;
+}
+
+.jscolor {
+  width: 100px;
+}
+
+custom-elem {
+  transition: all 0.2s ease;
+  background-color: var(--snippet-highlight-color);
+  cursor: pointer;
+}
+
+.hl-hover {
+  background-color: var(--snippet-hover-color);
+}
+
+.hl-clicked {
+  background-color: var(--snippet-hover-color);
+}
+
+button {
+  background-color: white;
+  border: 1px solid #363636;
+  border-radius: 3px;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+button:first-child {
+  margin-right: 5px;
+}

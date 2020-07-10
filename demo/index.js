@@ -1,6 +1,14 @@
-/* eslint-disable no-unused-vars */
-import Highlighter from './src/index';
+// eslint-disable-next-line import/no-unresolved
+import jscolor from 'jscolor';
+import Highlighter from '../src/index';
+import './index.css';
+import * as store from './store';
+import { prepareMenu } from './menu';
 
+// create menu
+const menu = prepareMenu();
+
+// helper function
 function getRealPos(el) {
   let _el = el;
   let left = 0;
@@ -14,7 +22,7 @@ function getRealPos(el) {
   return { left, top };
 }
 
-// single del prompt
+// create delete prompt
 const delPrompt = document.createElement('div');
 document.body.appendChild(delPrompt);
 delPrompt.classList.add('del-prompt');
@@ -29,10 +37,12 @@ function setPromptAt(el) {
   delPrompt.dataset.id = el.dataset.highlightId;
 }
 
+// constants
 const DEFAULT_HIGHLIGHT_COLOR = '#FBFF75';
 const DEFAULT_HOVER_COLOR = '#F9D186';
 const SNIPPET_TAGNAME = 'custom-elem';
 
+// dom methods
 function getSnippetsByDataID(id) {
   return document.querySelectorAll(
     `${SNIPPET_TAGNAME}[data-highlight-id='${id}']`
@@ -63,12 +73,13 @@ function removeClassByDataID(id, className) {
   });
 }
 
+// actual highlighter stuff
 const highlighter = new Highlighter({
   highlightColor: DEFAULT_HIGHLIGHT_COLOR,
   hoverColor: DEFAULT_HOVER_COLOR,
-  snippetTagName: SNIPPET_TAGNAME
+  snippetTagName: SNIPPET_TAGNAME,
+  exclude: ['li']
 });
-highlighter.init();
 
 let clicked = false;
 
@@ -96,8 +107,36 @@ highlighter
     clicked = true;
   })
   .on(Highlighter.EVENTS.REMOVED, ({ snippetID }) => {
+    store.remove(snippetID);
     console.log(`Removed all highlights with id ${snippetID}`);
+  })
+  .on(Highlighter.EVENTS.HIDE_MENU, () => {
+    menu.hide();
+  })
+  .on(Highlighter.EVENTS.SHOW_MENU, () => {
+    menu.show(highlighter.currentRange);
+  })
+  .on(Highlighter.EVENTS.CREATED, ({ highlightInfo }) => {
+    store.save(highlightInfo);
+  })
+  .on(Highlighter.EVENTS.ERROR_LOADING, ({ highlight, error }) => {
+    console.error(`Failed loading highlight: `, highlight);
+    console.error(`Reason: `, error);
+  })
+  .on(Highlighter.EVENTS.LOADED, ({ highlight }) => {
+    console.log('Successfully loaded the following highlight: ', highlight);
   });
+
+// get info from store
+const hlInfos = store.getAll();
+highlighter.restoreHighlights(hlInfos);
+
+// additional event listeners for demo
+window.addEventListener('resize', () => {
+  if (highlighter.currentRange && menu.isVisible()) {
+    menu.show(highlighter.currentRange);
+  }
+});
 
 document.addEventListener('click', e => {
   const { target } = e;
@@ -117,6 +156,19 @@ document.querySelector('#clear_hl').addEventListener('click', () => {
   highlighter.clearAll();
 });
 
+document.querySelector('#start_hl').addEventListener('click', () => {
+  highlighter.start();
+});
+
+document.querySelector('#pause_hl').addEventListener('click', () => {
+  highlighter.pause();
+});
+
+document.querySelector('#terminate_hl').addEventListener('click', () => {
+  highlighter.terminate();
+});
+
+// color stuff
 function updateHighlightColor(picker) {
   highlighter.setHighlightColor(picker.toHEXString());
 }
@@ -135,7 +187,6 @@ hoverColorSelector.addEventListener('change', e => {
   updateHoverColor(e.target.jscolor);
 });
 
-// set defaults
 hlColorSelector.dataset.jscolor = `{
   value: '${DEFAULT_HIGHLIGHT_COLOR}'
 }`;

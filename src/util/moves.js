@@ -9,6 +9,5 @@ export const Moves = {
   MOUSE_DOWN: touchDevice ? 'touchstart' : 'mousedown',
   HOVER: touchDevice ? 'touchstart' : 'mouseover',
   CLICK: touchDevice ? 'touchstart' : 'click',
-  RESIZE: 'reisze', // resize event is the same on any screen
   HIGHLIGHT: 'highlight' // custom Event dispatched by highlighter menu
 };

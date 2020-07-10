@@ -37,13 +37,11 @@ function isSelectionBackwards(selection) {
   return testRange.collapsed;
 }
 
-function nodeInSelection(range, node) {
+function nodeInSelection(range, node, exclude) {
   return (
     node != null &&
     !isEmptyString(node.data) &&
-    node.parentElement.tagName !== 'SCRIPT' &&
-    node.parentElement.tagName !== 'STYLE' &&
-    node.parentElement.tagName !== 'NOSCRIPT' &&
+    !exclude.includes(node.parentElement.tagName) &&
     window.getComputedStyle(node.parentElement).getPropertyValue('display') !==
       'none' &&
     range.intersectsNode(node)
@@ -74,7 +72,7 @@ function getNonWhitespaceOffset(range) {
   return { sOffset: startOffset, eOffset: endOffset };
 }
 
-function getHighlightRanges(range, commonEnclosingElement) {
+function getHighlightRanges(range, commonEnclosingElement, exclude) {
   const { startContainer, endContainer, startOffset, endOffset } = range;
 
   const walker = document.createTreeWalker(
@@ -82,7 +80,7 @@ function getHighlightRanges(range, commonEnclosingElement) {
     NodeFilter.SHOW_TEXT,
     {
       acceptNode(node) {
-        return nodeInSelection(range, node)
+        return nodeInSelection(range, node, exclude)
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT;
       }
@@ -153,9 +151,11 @@ function cleanRange(range) {
 function serialize(id, range, highlightColor, hoverColor) {
   const startData = getDOMData(range.startContainer, range.startOffset);
   const endData = getDOMData(range.endContainer, range.endOffset);
+  const text = range.toString();
 
   return {
     id,
+    text,
     startData,
     endData,
     highlightColor,
@@ -163,14 +163,34 @@ function serialize(id, range, highlightColor, hoverColor) {
   };
 }
 
-/*
- 1) when you save, save it relative to the first parent which is not a highlight snippet
-*/
+function isCompleteSelectionInfo(info) {
+  const { id, text, startData, endData, highlightColor, hoverColor } = info;
+  const startDataIsValid =
+    startData &&
+    startData.parentTag &&
+    startData.parentOffset !== undefined &&
+    startData.absOffset !== undefined;
+  const endDataIsValid =
+    endData &&
+    endData.parentTag &&
+    endData.parentOffset !== undefined &&
+    endData.absOffset !== undefined;
+
+  return (
+    id &&
+    text &&
+    startDataIsValid &&
+    endDataIsValid &&
+    highlightColor &&
+    hoverColor
+  );
+}
 
 export {
   isSelectionBackwards,
   getNonWhitespaceOffset,
   getHighlightRanges,
   cleanRange,
-  serialize
+  serialize,
+  isCompleteSelectionInfo
 };
