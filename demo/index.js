@@ -4,23 +4,13 @@ import Highliter from '../src/index';
 import './index.css';
 import * as store from './store';
 import { prepareMenu } from './menu';
+import { getRealPos } from './helpers';
+import { makePanelDraggable } from './draggable';
+
+makePanelDraggable();
 
 // create menu
 const menu = prepareMenu();
-
-// helper function
-function getRealPos(el) {
-  let _el = el;
-  let left = 0;
-  let top = 0;
-  do {
-    left += _el.offsetLeft;
-    top += _el.offsetTop;
-    _el = _el.offsetParent;
-  } while (_el);
-
-  return { left, top };
-}
 
 // create delete prompt
 const delPrompt = document.createElement('div');
@@ -43,14 +33,14 @@ const DEFAULT_HOVER_COLOR = '#F9D186';
 const CUSTOM_TAGNAME = 'custom-elem';
 
 // dom methods
-function getSnippetsByDataID(id) {
+function getSnippetsByHighlightID(id) {
   return document.querySelectorAll(
     `${CUSTOM_TAGNAME}[data-highlight-id='${id}']`
   );
 }
 
-function addClassByDataID(id, className) {
-  const snippets = getSnippetsByDataID(id);
+function addClassByHighlightID(id, className) {
+  const snippets = getSnippetsByHighlightID(id);
   snippets.forEach(el => {
     el.classList.add(className);
     const nestedSnippets = el.querySelectorAll(CUSTOM_TAGNAME);
@@ -61,8 +51,8 @@ function addClassByDataID(id, className) {
   });
 }
 
-function removeClassByDataID(id, className) {
-  const snippets = getSnippetsByDataID(id);
+function removeClassByHighlightID(id, className) {
+  const snippets = getSnippetsByHighlightID(id);
   snippets.forEach(el => {
     el.classList.remove(className);
     const nestedSnippets = el.querySelectorAll(CUSTOM_TAGNAME);
@@ -86,23 +76,23 @@ let clicked = false;
 highliter
   .on(Highliter.Events.HOVER, ({ highlightID }) => {
     if (!clicked) {
-      addClassByDataID(highlightID, 'hl-hover');
+      addClassByHighlightID(highlightID, 'hl-hover');
     }
   })
   .on(Highliter.Events.HOVER_OUT, ({ highlightID }) => {
     if (!clicked) {
-      removeClassByDataID(highlightID, 'hl-hover');
+      removeClassByHighlightID(highlightID, 'hl-hover');
     }
   })
   .on(Highliter.Events.CLICKED_OUT, ({ highlightID }) => {
-    removeClassByDataID(highlightID, 'hl-clicked');
-    removeClassByDataID(highlightID, 'hl-hover');
+    removeClassByHighlightID(highlightID, 'hl-clicked');
+    removeClassByHighlightID(highlightID, 'hl-hover');
     clicked = false;
   })
   .on(Highliter.Events.CLICKED, ({ highlightID }) => {
-    const snippets = getSnippetsByDataID(highlightID);
+    const snippets = getSnippetsByHighlightID(highlightID);
     const firstSnippet = snippets[0];
-    addClassByDataID(highlightID, 'hl-clicked');
+    addClassByHighlightID(highlightID, 'hl-clicked');
     setPromptAt(firstSnippet);
     clicked = true;
   })
@@ -144,7 +134,7 @@ document.addEventListener('click', e => {
   if (target.classList.contains('del-prompt')) {
     const { id } = target.dataset;
     // remove highlight clicked
-    removeClassByDataID(id, 'highlight-hover');
+    removeClassByHighlightID(id, 'highlight-hover');
     highliter.remove(id);
     delPrompt.classList.add('hidden');
   } else if (!target.dataset.highlightId) {

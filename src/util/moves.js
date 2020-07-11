@@ -5,9 +5,9 @@ const touchDevice =
   navigator.maxTouchPoints || 'ontouchstart' in document.documentElement;
 
 export const Moves = {
-  MOUSE_UP: touchDevice ? 'touchend' : 'mouseup',
+  MOUSE_UP: touchDevice ? 'contextmenu' : 'mouseup',
   MOUSE_DOWN: touchDevice ? 'touchstart' : 'mousedown',
   HOVER: touchDevice ? 'touchstart' : 'mouseover',
   CLICK: touchDevice ? 'touchstart' : 'click',
-  HIGHLIGHT: 'highlight' // custom Event dispatched by highlighter menu
+  HIGHLIGHT: 'highlight'
 };
