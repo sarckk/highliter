@@ -88,7 +88,7 @@ All options:
 | highlightColor | `string`                 | RGB/RGBA/HEX string of the initial highlight color                                                                                                                                                                              | No       | `#FAFF60`                        |
 | hoverColor     | `string`                 | RGB/RGBA/HEX string of the initial highlight color                                                                                                                                                                              | No       | `#F1F73B`                        |
 | customTagName  | `string`                 | [Kebab-case](https://en.toolpage.org/tool/kebabcase) (dash in the name) string representing the name of the custom html element which will wrap around each text node in the highlight range<sup id="a1">[more info](#f1)</sup> | No       | `highlight-snippet`              |
-| exclude        | `string | array<string>` | A single string or an array of strings of the tag name of elements whose child text nodes will be excluded during highlights                                                                                                    | No       | `['SCRIPT','STYLE','NO-SCRIPT']` |
+| exclude        | `string or array<string>` | A single string or an array of strings of the tag name of elements whose child text nodes will be excluded during highlights                                                                                                    | No       | `['SCRIPT','STYLE','NO-SCRIPT']` |
 
 <b id="f1">more info:</b> Any names with dash-separated strings will do, except for the following reserved names:
 
