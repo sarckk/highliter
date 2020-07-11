@@ -1,6 +1,8 @@
 # highliter
 
-### highliter is a <i style="color: #6B6FF9">lite</i> JS highlighting library with zero dependencies ⚡
+### highliter is a <i style="color: #6B6FF9">lite</i> JS highlighting library with no dependencies ⚡
+
+![](https://raw.githubusercontent.com/sarckk/highliter/master/assets/demo.gif)
 
 ---
 
@@ -42,12 +44,12 @@ highliter.pause();
 
 ## Demo
 
-Check out the demo page [here]("https://sarckk.github.io/highliter"), or look inside the `demo` folder for the source code.
+Check out the demo page [here](https://sarckk.github.io/highliter/), or look inside the `demo` folder for the source code.
 
 To run the demo locally, clone the repo:
 
 ```bash
-git clone https://github.com/sarckk/highliter
+git clone https://github.com/sarckk/highliter.git
 ```
 
 Change into the directory and install the dependencies:
@@ -172,14 +174,13 @@ Users can listen to any of one of these events like so:
 ```javascript
 highliter
   .on(Highliter.Events.HOVER, ({ highlightID }) => {
-    addClassByDataID(highlightID, 'hl-hover');
+    // do something on hover
   })
   .on(Highliter.Events.HOVER_OUT, ({ highlightID }) => {
-    removeClassByDataID(highlightID, 'hl-hover');
+    // do something on hover out
   })
   .on(Highliter.Events.CLICKED_OUT, ({ highlightID }) => {
-    removeClassByDataID(highlightID, 'hl-clicked');
-    removeClassByDataID(highlightID, 'hl-hover');
+    // do something on click out
   });
 ```
 
@@ -233,3 +234,7 @@ this.addEventListener('click', () => {
 ```
 
 **Note:** In the particular example above, `composed:true` has to be set because the event is being dispatched from within a shadow dom and thus the property needs to be set to `true` so that the `highlight` event can bubble past the shadow dom boundary and reach the event listener in the `document`.
+
+## TODO
+
+- Add support for mixing of colors for overlapping highlights
