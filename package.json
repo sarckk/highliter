@@ -1,17 +1,22 @@
 {
   "name": "highliter",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "⚡ Lightweight JS highlighter",
   "homepage": "https://sarckk.github.io/highliter",
   "repository": {
     "type": "git",
     "url": "https://github.com/sarckk/highliter"
   },
+  "main": "./dist/highliter.min.js",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
     "start": "webpack-dev-server -d --env=dev --open",
     "build": "webpack -p --env=prod",
     "watch": "webpack -p --env=prod --watch",
-    "build-demo": "webpack -p --env=prod-demo"
+    "build-demo": "webpack -p --env=prod-demo",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "highlight",
@@ -50,6 +55,5 @@
   },
   "bugs": {
     "url": "https://github.com/sarckk/highliter/issues"
-  },
-  "main": "dist/highliter.min.js"
+  }
 }
