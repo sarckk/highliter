@@ -7,12 +7,6 @@ main {
   margin: 1% auto;
 }
 
-@media screen and (max-width: 992px) {
-  main {
-    padding: 1px 10px;
-  }
-}
-
 .color-panel {
   position: fixed;
   top: 30px;
@@ -22,6 +16,24 @@ main {
   border: 1px dotted rgb(54, 54, 54);
   border-radius: 5px;
   cursor: grab;
+  user-select: none;
+}
+
+.color-panel > * {
+  user-select: none;
+}
+
+@media screen and (max-width: 992px) {
+  main {
+    padding: 1px 10px;
+  }
+
+  .color-panel {
+    top: auto;
+    left: auto;
+    bottom: 30px;
+    right: 12px;
+  }
 }
 
 .panel-row {
@@ -29,7 +41,6 @@ main {
   flex-direction: row;
   align-items: center;
   margin-bottom: 10px;
-  user-select: none;
 }
 
 .panel-row:last-child {

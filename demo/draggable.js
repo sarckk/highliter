@@ -1,5 +1,11 @@
 function makePanelDraggable() {
+  const touchDevice =
+    navigator.maxTouchPoints || 'ontouchstart' in document.documentElement;
   const panel = document.querySelector('.color-panel');
+  const clientH = touchDevice
+    ? window.outerHeight
+    : document.documentElement.clientHeight;
+  const clientW = document.documentElement.clientWidth;
 
   let isDragging = false;
   let shiftX;
@@ -10,22 +16,27 @@ function makePanelDraggable() {
     let newY = clientY - shiftY;
 
     if (newX < 0) newX = 0;
-    if (newX > document.documentElement.clientWidth - panel.offsetWidth) {
-      newX = document.documentElement.clientWidth - panel.offsetWidth;
+    if (newX > clientW - panel.offsetWidth) {
+      newX = clientW - panel.offsetWidth;
     }
 
     if (newY < 0) newY = 0;
-    if (newY > document.documentElement.clientHeight - panel.offsetHeight) {
-      newY = document.documentElement.clientHeight - panel.offsetHeight;
+    if (newY > clientH - panel.offsetHeight) {
+      newY = clientH - panel.offsetHeight;
     }
 
-    panel.style.left = `${newX}px`;
-    panel.style.top = `${newY}px`;
+    if (touchDevice) {
+      panel.style.right = `${clientW - newX - panel.offsetWidth}px`;
+      panel.style.bottom = `${clientH - newY - panel.offsetHeight}px`;
+    } else {
+      panel.style.left = `${newX}px`;
+      panel.style.top = `${newY}px`;
+    }
   }
 
   function dragStart(e) {
-    const { target } = e;
-    if (!target.classList.contains('color-panel')) {
+    const target = e.target.closest('.color-panel');
+    if (!target) {
       return;
     }
 
@@ -49,7 +60,8 @@ function makePanelDraggable() {
       return;
     }
 
-    if (e.type === 'touchstart') {
+    e.preventDefault();
+    if (e.type === 'touchmove') {
       moveAt(e.touches[0].clientX, e.touches[0].clientY);
     } else {
       moveAt(e.clientX, e.clientY);
@@ -66,11 +78,11 @@ function makePanelDraggable() {
 
   document.addEventListener('touchstart', dragStart);
   document.addEventListener('touchend', dragEnd);
-  document.addEventListener('touchmove', drag);
+  document.addEventListener('touchmove', drag, { passive: false });
 
   document.addEventListener('mousedown', dragStart);
   document.addEventListener('mouseup', dragEnd);
-  document.addEventListener('mousemove', drag);
+  document.addEventListener('mousemove', drag, { passive: false });
 }
 
 export { makePanelDraggable };

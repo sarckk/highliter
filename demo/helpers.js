@@ -1,4 +1,4 @@
-// helper function
+// gets absolute position (left,top) of the element
 function getRealPos(el) {
   let _el = el;
   let left = 0;
