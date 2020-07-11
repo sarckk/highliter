@@ -5,25 +5,22 @@ import {
 } from './dom';
 import { NODE_TYPE_TEXT } from './constants';
 
-/*
-function getDocumentSelection() {
-  const selection = document.getSelection();
+function getCurrentSelection() {
+  const selection = window.getSelection();
 
   if (
     !selection ||
-    selection.rangeCount === 0 ||
-    selection.toString().match(/^\s*$/) ||
+    selection.rangeCount <= 0 ||
     selection.isCollapsed ||
     !selection.anchorNode ||
     !selection.focusNode
   ) {
-    console.log('Invalid selection!');
+    console.error('Invalid selection!');
     return null;
   }
 
   return selection;
 }
-*/
 
 function isEmptyString(str) {
   return str.match(/^\s*$/);
@@ -187,6 +184,7 @@ function isCompleteSelectionInfo(info) {
 }
 
 export {
+  getCurrentSelection,
   isSelectionBackwards,
   getNonWhitespaceOffset,
   getHighlightRanges,

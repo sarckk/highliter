@@ -2,10 +2,15 @@ import { prepareHighlightSnippet } from './highlight-snippet';
 import DOMPainter from './dom.painter';
 import { generateConfig } from './util/constants';
 import { Events } from './util/events';
-import { Moves } from './util/moves';
+import { touchDevice, Moves } from './util/moves';
 import EventEmitter from './util/emitter';
 import { isHighlightSnippet } from './util/dom';
-import { isSelectionBackwards, cleanRange, serialize } from './util/selection';
+import {
+  getCurrentSelection,
+  isSelectionBackwards,
+  cleanRange,
+  serialize
+} from './util/selection';
 import { uuidv4 } from './util/uuid';
 
 class Highliter extends EventEmitter {
@@ -35,6 +40,10 @@ class Highliter extends EventEmitter {
     document.removeEventListener(Moves.CLICK, this._onMouseClick);
     document.removeEventListener(Moves.HIGHLIGHT, this._createHighlight);
     document.removeEventListener(Moves.HOVER, this._onSnippetHover);
+    document.removeEventListener(
+      Moves.SELECTION_CHANGE,
+      this._onSelectionChange
+    );
     this.clearAll();
   };
 
@@ -58,40 +67,53 @@ class Highliter extends EventEmitter {
   }
 
   _initDocumentListeners = () => {
-    document.addEventListener(Moves.MOUSE_DOWN, () =>
-      window.getSelection().removeAllRanges()
-    );
+    if (touchDevice) {
+      document.addEventListener(
+        Moves.SELECTION_CHANGE,
+        this._onSelectionChange
+      );
+    } else {
+      document.addEventListener(
+        Moves.MOUSE_DOWN,
+        () => window.getSelection() && window.getSelection().removeAllRanges()
+      );
+    }
     document.addEventListener(Moves.MOUSE_UP, this._onSelection);
     document.addEventListener(Moves.HOVER, this._onSnippetHover);
     document.addEventListener(Moves.CLICK, this._onMouseClick);
     document.addEventListener(Moves.HIGHLIGHT, this._createHighlight);
   };
 
-  _onSelection = () => {
-    const selection = window.getSelection();
-
-    if (selection && selection.rangeCount > 0) {
-      // selection obj changes after cleaning so we keep the value in variable first
-      const isBackwards = isSelectionBackwards(selection);
-      const range = selection.getRangeAt(0);
-      if (range.collapsed) {
-        this.emit(Events.HIDE_MENU);
-        return;
-      }
-
-      const cleanedRange = cleanRange(range);
-      if (!cleanedRange) {
-        this.emit(Events.HIDE_MENU);
-        return;
-      }
-
-      this.currentRange = {
-        range: cleanedRange,
-        isSelectionBackwards: isBackwards
-      };
-
-      this.emit(Events.SHOW_MENU);
+  _onSelectionChange = () => {
+    const selection = getCurrentSelection();
+    if (selection === null) {
+      this.emit(Events.HIDE_MENU);
     }
+  };
+
+  _onSelection = () => {
+    const selection = getCurrentSelection();
+    if (selection === null) {
+      this.emit(Events.HIDE_MENU);
+      return;
+    }
+
+    // selection obj changes after cleaning so we keep the value in variable first
+    const isBackwards = isSelectionBackwards(selection);
+    const range = selection.getRangeAt(0);
+
+    const cleanedRange = cleanRange(range);
+    if (!cleanedRange) {
+      this.emit(Events.HIDE_MENU);
+      return;
+    }
+
+    this.currentRange = {
+      range: cleanedRange,
+      isSelectionBackwards: isBackwards
+    };
+
+    this.emit(Events.SHOW_MENU);
   };
 
   _onMouseClick = e => {
@@ -144,6 +166,7 @@ class Highliter extends EventEmitter {
     }
 
     this.emit(Events.CREATED, { highlight });
+    this.emit(Events.HIDE_MENU);
   };
 
   _onSnippetHover = e => {

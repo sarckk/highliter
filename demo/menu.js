@@ -89,8 +89,13 @@ class HighlightMenu extends HTMLElement {
     this.style.display = 'flex';
 
     if (isSelectionBackwards) {
-      this.style.left = `${rects[0].left - this.offsetWidth / 2}px`;
-      this.style.top = `${rects[0].top - this.offsetHeight / 2 - 13}px`;
+      this.style.left = `${rects[0].left -
+        this.offsetWidth / 2 +
+        window.pageXOffset}px`;
+      this.style.top = `${rects[0].top -
+        this.offsetHeight / 2 -
+        19 +
+        window.pageYOffset}px`;
       this.shadowRoot
         .querySelector('.menu-pointer')
         .classList.remove('up-pointer');
@@ -99,8 +104,11 @@ class HighlightMenu extends HTMLElement {
         .classList.add('down-pointer');
     } else {
       this.style.left = `${rects[rects.length - 1].right -
-        this.offsetWidth / 2}px`;
-      this.style.top = `${rects[rects.length - 1].bottom + 5}px`;
+        this.offsetWidth / 2 +
+        window.pageXOffset}px`;
+      this.style.top = `${rects[rects.length - 1].bottom +
+        11 +
+        window.pageYOffset}px`;
       this.shadowRoot
         .querySelector('.menu-pointer')
         .classList.remove('down-pointer');
