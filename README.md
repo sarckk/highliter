@@ -1,8 +1,16 @@
-# highliter
+<p align="center">
+  <a href="https://www.npmjs.com/package/highliter"><img src="https://raw.githubusercontent.com/sarckk/highliter/master/assets/highliter.png" alt="Highliter" width="380"></a>
+  <h4 align="center">highliter is a <i>lite</i> JS highlighting library with no dependencies ⚡</h4>
+</p>
 
-### highliter is a <i style="color: #6B6FF9">lite</i> JS highlighting library with no dependencies ⚡
+<p align="center">
+  <a href="https://www.npmjs.com/package/highliter"><img src="https://img.shields.io/npm/v/highliter" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/highliter"><img src="https://img.shields.io/bundlephobia/min/highliter" alt="npm pkg size"></a>
+</p>
 
-![](https://raw.githubusercontent.com/sarckk/highliter/master/assets/demo.gif)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sarckk/highliter/master/assets/demo.gif" alt="animated" />
+</p>
 
 ---
 
@@ -145,12 +153,12 @@ Object containing constants representing the names of events triggered by the `H
    triggers when a highlight is created
    |argument property|description|type|
    |---|---|---|
-   |`highlight`|Object obtained from parsing a serialized highlight whic has been successfully created from user input|Object|
+   |`highlight`|Object obtained from parsing a serialized highlight which has been successfully created from user input|Object|
 6. `Events.LOADED`
    triggers when a highlight is loaded
    |argument property|description|type|
    |---|---|---|
-   |`highlight`|Object obtained from parsing a serialized highlight whic has been successfully restored in the DOM from another source|Object|
+   |`highlight`|Object obtained from parsing a serialized highlight which has been successfully restored in the DOM from another source|Object|
 7. `Events.REMOVED`
    triggers when a highlight is removed
    |argument property|description|type|
